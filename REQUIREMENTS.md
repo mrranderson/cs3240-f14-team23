@@ -16,3 +16,9 @@ Should users be able to search for posts by a certain author, or would this feat
 
 On a similar note, should authors be able to be identified by a username?  Again, this may compromising to confidentiality, but could help authors develop a reputation and following
 
+Should authors be able to make their bulletins public (i.e. give permission to read to all users)? Similarly, can an author deny permission to specific users, but allow it for all others?
+
+Should administrators be able to screen bulletins for reasons like credibility of the information, relevance of the information, etc.?
+
+What happens if a user consistently misuses the app? Can he or she be banned?
+
