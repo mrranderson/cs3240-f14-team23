@@ -22,3 +22,5 @@ Should administrators be able to screen bulletins for reasons like credibility o
 
 What happens if a user consistently misuses the app? Can he or she be banned?
 
+How many extra features (beyond the core features in the vision document) should we implement?
+
