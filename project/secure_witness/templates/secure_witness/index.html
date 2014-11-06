@@ -1,0 +1,14 @@
+<!--
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'polls/style.css' %}" />
+-->
+{% if bulletin_list %}
+    <ul>
+    {% for bulletin in bulletin_list %}
+      <li><a href="{% url 'secure_witness:detail' bulletin.id %}">{{ Bulletin.title }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No bulletins are available.</p>
+{% endif %}
+
