@@ -8,5 +8,5 @@ urlpatterns = patterns('',
 		url(r'^$', include('secure_witness.urls')),
     url(r'^admin/', include(admin.site.urls)),
 		url(r'^accounts/login/', 'django.contrib.auth.views.login', {'template_name': 'secure_witness/login.html'}),
-		url(r'^adduser/', include('secure_witness.urls')),
+		url(r'^adduser/', views.lexusadduser, name='adduser')
 )

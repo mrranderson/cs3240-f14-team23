@@ -6,8 +6,9 @@ from django.views import generic
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from forms import UserForm
-from django.contrib.auth import login
+from django.contrib.auth import login, authenticate
 from secure_witness.models import Bulletin, Document
+from django.contrib.auth.models import User
 
 #def IndexView(request):
 #	return HttpResponse("Index")
@@ -23,10 +24,11 @@ def lexusadduser(request):
     if request.method == "POST":
         form = UserForm(request.POST)
         if form.is_valid():
-            new_user = User.objects.create_user(**form.cleaned_data)
-            login(new_user)
+            new_user = User.objects.create_user(username=form.cleaned_data['username'], password=form.cleaned_data['password'])
+            user = authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password'])
+            login(request,user)
             # redirect, or however you want to get to the main view
-            return HttpResponseRedirect('main.html')
+            return HttpResponseRedirect('/')
     else:
         form = UserForm() 
 
