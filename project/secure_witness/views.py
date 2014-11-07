@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 from django.views import generic
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
-from forms import UserForm
+from forms import UserForm, BasicSearchForm
 from django.contrib.auth import login, authenticate
 from secure_witness.models import Bulletin, Document
 from django.contrib.auth.models import User
@@ -19,6 +19,17 @@ class IndexView(generic.ListView):
 
     def get_queryset(self):
         return Bulletin.objects.filter(date_created__lte=timezone.now()).order_by('-date_created')[:5]
+
+def basic_search(request):
+    if request.method == "POST":
+        #
+        #  This is where you put the code to process the search
+        #  Also need to figure out a better way to search by keyword
+        #
+        return HttpResponseRedirect('/')
+    else:
+        form = BasicSearchForm()
+    return render(request, 'secure_witness/search.html', {'form': form}) 
 
 def lexusadduser(request):
     if request.method == "POST":

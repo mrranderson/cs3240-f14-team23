@@ -6,3 +6,6 @@ class UserForm(forms.Form):
     username = forms.CharField(label='Username', min_length=5)
     password = forms.CharField(widget=forms.PasswordInput())
     confirm_password = forms.CharField(widget=forms.PasswordInput())
+
+class BasicSearchForm(forms.Form):
+    keywords = forms.CharField(label="Keywords", max_length=200)
