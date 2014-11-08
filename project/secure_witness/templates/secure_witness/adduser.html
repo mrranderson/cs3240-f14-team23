@@ -1,5 +1,44 @@
+{% block content %}
+<div style="position: absolute;top: 40%;left: 50%;margin-top: -100px;margin-left: -180px;width: 360px;height: 200px; border:4px solid grey; padding-left: 25px; padding-right: 10px" >
+<h3>Create A New Secure Witness Account!</h3>
+
+<form method="post" action="/adduser/">
+{% csrf_token %}
+<table>
+<tr>
+    <td>{{ form.username.label_tag }}</td>
+    <td>{{ form.username }}</td>
+</tr>
+<tr>
+    <td>{{ form.password.label_tag }}</td>
+    <td>{{ form.password }}</td>
+</tr>
+<tr>
+	<td>{{ form.confirm_password.label_tag}}</td>
+	<td>{{ form.confirm_password }} </td>
+</table>
+
+<!-- NEED TO IMPLEMENT ERROR CHECKING -->
+
+<br>
+<input type="submit" value="Create Account" />
+</form>
+</div>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+<!--
+
 <form method="post" action="/adduser/">
     {% csrf_token %}
     {{ form }}
     <input type="submit" value="Create account" />
-</form>
+</form> -->

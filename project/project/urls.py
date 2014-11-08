@@ -9,5 +9,6 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
 		url(r'^accounts/login/', 'django.contrib.auth.views.login', {'template_name': 'secure_witness/login.html'}),
 		url(r'^adduser/', views.lexusadduser, name='adduser'),
-                url(r'^search/', views.basic_search, name='search'),
+        url(r'^search/', views.basic_search, name='search'),
+        url(r'^logout', views.logout_user, name='logout')
 )

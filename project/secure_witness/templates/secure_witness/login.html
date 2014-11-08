@@ -1,8 +1,6 @@
 {% block content %}
-
-{% if form.errors %}
-<p>Your username and password didn't match. Please try again.</p>
-{% endif %}
+<div style="position: absolute;top: 40%;left: 50%;margin-top: -100px;margin-left: -180px;width: 360px;height: 200px; border:4px solid grey; padding-left: 25px; padding-right: 10px" >
+<h3>Welcome to Secure Witness! Please log in</h3>
 
 <form method="post" action="{% url 'django.contrib.auth.views.login' %}">
 {% csrf_token %}
@@ -17,9 +15,23 @@
 </tr>
 </table>
 
-<input type="submit" value="login" />
-<a href="/adduser/" >Create New User</a>
-<input type="hidden" name="next" value="{{ next }}" />
-</form>
+{% if form.errors %}
+<font color="red">Your username and password didn't match. Try again.</font> <br> <br>
+{% else %}
+<br> <br> 
+{% endif %}
+<table>
+	<tr>
+		<td> <input type="submit" value="login" />
+		</td>
+		<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		<td> <a href="/adduser/" >Create New Account</a>
+		</td>
+	</tr>
+<!--<input type="submit" value="login" />
 
+<a href="/adduser/" >Create New User</a>
+<input type="hidden" name="next" value="{{ next }}" /> -->
+</form>
+</div>
 {% endblock %}

@@ -6,7 +6,7 @@ from django.views import generic
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from forms import UserForm, BasicSearchForm
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, logout
 from secure_witness.models import Bulletin, Document
 from django.contrib.auth.models import User
 
@@ -20,6 +20,7 @@ class IndexView(generic.ListView):
     def get_queryset(self):
         return Bulletin.objects.filter(date_created__lte=timezone.now()).order_by('-date_created')[:5]
 
+@login_required
 def basic_search(request):
     if request.method == "POST":
         #
@@ -30,6 +31,11 @@ def basic_search(request):
     else:
         form = BasicSearchForm()
     return render(request, 'secure_witness/search.html', {'form': form}) 
+
+@login_required
+def logout_user(request):
+    logout(request)
+    return HttpResponseRedirect('/')
 
 def lexusadduser(request):
     if request.method == "POST":
