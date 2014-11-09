@@ -18,3 +18,8 @@ class Document(models.Model):
 	#Link to bulletin it's posted with
 	owner = models.ForeignKey(Bulletin)
 	#field to hold file
+	
+	class Meta:
+		permissions = (
+			("decrypt_document", "Can decrypt and use file"),
+		)
