@@ -2,11 +2,13 @@
 {% load staticfiles %}
 <link rel="stylesheet" type="text/css" href="{% static 'polls/style.css' %}" />
 -->
-<a href="/search">Search Bulletins</a>
+<a href="/search">Search Bulletins</a> <br><br>
+
+<a href="/create_bulletin">Create New Bulletin</a>
 {% if bulletin_list %}
     <ul>
     {% for bulletin in bulletin_list %}
-      <li><a href="{% url 'secure_witness:detail' bulletin.id %}">{{ Bulletin.title }}</a></li>
+      <li>Bulletin {{forloop.counter}}: <a href="{% url 'detail_bulletin' bulletin.id %}">{{ bulletin.title }}</a></li>
     {% endfor %}
     </ul>
 {% else %}

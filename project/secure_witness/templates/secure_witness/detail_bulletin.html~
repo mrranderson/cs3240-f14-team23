@@ -1,0 +1,17 @@
+{% block content %}
+<div style="position: absolute;top: 40%;left: 50%;margin-top: -100px;margin-left: -180px;width: 360px;height: 200px; border:4px solid grey; padding-left: 25px; padding-right: 10px" >
+<h1>{{ Bulletin.title }}</h1>
+
+<h2>Author: {{ Bulletin.author }}</h2>
+
+<h3>Date created: {{Bulletin.date_created}} <br>
+Date modified: {{Bulletin.date_modified}}
+Location: {{Bulletin.location}}</br>
+
+<p>Description: <br>
+{{Bulletin.description}}</p>
+
+
+
+</div>
+{% endblock %}

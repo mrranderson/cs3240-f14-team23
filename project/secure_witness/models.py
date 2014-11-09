@@ -10,6 +10,9 @@ class Bulletin(models.Model):
 	location = models.CharField(max_length=200)
 	description = models.CharField(max_length=200)
 
+	def __unicode__(self):
+		return self.title
+
 class Document(models.Model):
 	title = models.CharField(max_length=200)
 	#Link to bulletin it's posted with

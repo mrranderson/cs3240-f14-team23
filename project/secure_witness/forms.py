@@ -17,3 +17,8 @@ class UserForm(forms.Form):
 
 class BasicSearchForm(forms.Form):
     keywords = forms.CharField(label="Keywords", max_length=200)
+
+class BulletinForm(forms.Form):
+    title = forms.CharField(label='Title')
+    description = forms.CharField(label = 'Description')
+    location = forms.CharField(label = 'Location')

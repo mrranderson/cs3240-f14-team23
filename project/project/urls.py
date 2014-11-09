@@ -10,5 +10,7 @@ urlpatterns = patterns('',
 		url(r'^accounts/login/', 'django.contrib.auth.views.login', {'template_name': 'secure_witness/login.html'}),
 		url(r'^adduser/', views.lexusadduser, name='adduser'),
         url(r'^search/', views.basic_search, name='search'),
-        url(r'^logout', views.logout_user, name='logout')
+        url(r'^logout', views.logout_user, name='logout'),
+        url(r'^create_bulletin/', views.create_bulletin, name='create_bulletin'),
+        url(r'^(?P<bulletin_id>\d+)/', views.detail_bulletin, name='detail_bulletin')
 )

@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 from django.views import generic
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
-from forms import UserForm, BasicSearchForm
+from forms import UserForm, BasicSearchForm, BulletinForm
 from django.contrib.auth import login, authenticate, logout
 from secure_witness.models import Bulletin, Document
 from django.contrib.auth.models import User
@@ -56,5 +56,26 @@ def lexusadduser(request):
     else:
         form = UserForm() 
 
-    return render(request, 'secure_witness/adduser.html', {'form': form}) 
+    return render(request, 'secure_witness/adduser.html', {'form': form})
+
+def create_bulletin(request):
+    if request.method == "POST":
+        form = BulletinForm(request.POST)
+        if form.is_valid():
+            b = Bulletin()
+            b.title = form.cleaned_data['title']
+            b.location = form.cleaned_data['location']
+            b.description = form.cleaned_data['description']
+            b.author = request.user
+            b.save()
+        return HttpResponseRedirect('/')
+    else:
+        form = BulletinForm()
+
+    return render(request, 'secure_witness/create_bulletin.html', {'form': form})
+
+def detail_bulletin(request, bulletin_id):
+    bulletin = get_object_or_404(Bulletin, pk=bulletin_id)
+    return render(request, 'secure_witness/detail_bulletin.html', {'bulletin': bulletin})
+
 # Create your views here.
