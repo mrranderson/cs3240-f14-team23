@@ -7,18 +7,26 @@ from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from forms import UserForm, BasicSearchForm, BulletinForm
 from django.contrib.auth import login, authenticate, logout
-from secure_witness.models import Bulletin, Document
+from secure_witness.models import Bulletin, Document, Notification
 from django.contrib.auth.models import User
 
 #def IndexView(request):
 #	return HttpResponse("Index")
 
-class IndexView(generic.ListView):
-    template_name = 'secure_witness/index.html'
-    context_object_name = 'bulletin_list'
-
-    def get_queryset(self):
-        return Bulletin.objects.filter(date_created__lte=timezone.now()).order_by('-date_created')[:5]
+@login_required
+def IndexView(request):
+    bulletin_list = Bulletin.objects.all()
+    current_user = request.user
+    notifications = Notification.objects.filter(recipient=current_user, has_read=False)
+    if len(notifications) != 0:
+        inbox_str = 'Inbox( ' + str(len(notifications)) + ' )'
+    else:
+        inbox_str = 'Inbox'
+        
+    your_bulletins = Bulletin.objects.filter(author=request.user)
+    pub_bulletins = Bulletin.objects.filter(is_public=True)
+    
+    return render(request, 'secure_witness/index.html', {'bulletin_list': bulletin_list, 'inbox_str': inbox_str, 'your_bulletins': your_bulletins, 'pub_bulletins': pub_bulletins}) 
 
 @login_required
 def basic_search(request):
@@ -58,6 +66,7 @@ def lexusadduser(request):
 
     return render(request, 'secure_witness/adduser.html', {'form': form})
 
+@login_required
 def create_bulletin(request):
     if request.method == "POST":
         form = BulletinForm(request.POST)
@@ -67,15 +76,45 @@ def create_bulletin(request):
             b.location = form.cleaned_data['location']
             b.description = form.cleaned_data['description']
             b.author = request.user
+            if(form.cleaned_data['is_public']):
+                b.is_public = True
+            else:
+                b.is_public = False
+            if(form.cleaned_data['is_searchable']):
+                b.is_searchable = True
+            else:
+                b.is_searchable = False
             b.save()
+        else:
+            return HttpResponseRedirect('/logout')
         return HttpResponseRedirect('/')
     else:
         form = BulletinForm()
 
     return render(request, 'secure_witness/create_bulletin.html', {'form': form})
 
+@login_required
 def detail_bulletin(request, bulletin_id):
     bulletin = get_object_or_404(Bulletin, pk=bulletin_id)
     return render(request, 'secure_witness/detail_bulletin.html', {'bulletin': bulletin})
+
+@login_required
+def inbox(request):
+    notifications = Notification.objects.filter(recipient=request.user)
+    num_new = len(Notification.objects.filter(recipient=request.user, has_read=False))
+    return render(request, 'secure_witness/inbox.html', {'notifications': notifications, 'num_new': num_new})
+    
+@login_required
+def follow_bulletin(request, bulletin_id):
+    #Code needs work - cases
+    n = Notification()
+    bulletin = get_object_or_404(Bulletin, pk=bulletin_id)
+    n.subject = str(request.user) + ' has started following your bulletin'
+    n.sender = request.user
+    n.recipient = bulletin.author
+    n.message = 'This is an automatic notification that user ' + str(request.user) + ' has started following your bulletin: ' + str(bulletin.title)
+    n.bulletin = bulletin
+    n.save()
+    return HttpResponseRedirect('/')
 
 # Create your views here.

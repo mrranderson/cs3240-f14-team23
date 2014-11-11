@@ -1,5 +1,5 @@
 {% block content %}
-<div style="position: absolute;top: 40%;left: 50%;margin-top: -100px;margin-left: -180px;width: 360px;height: 200px; border:4px solid grey; padding-left: 25px; padding-right: 10px" >
+<div style="position: absolute;top: 20%;left: 50%;margin-top: -100px;margin-left: -180px;width: 360px;height: 200px; padding-left: 25px; padding-right: 10px" >
 <h3>Create A New Bulletin</h3>
 
 <form method="post" action="/create_bulletin/">
@@ -16,12 +16,23 @@
 <tr>
 	<td>{{ form.location.label_tag}}</td>
 	<td>{{ form.location }} </td>
+</tr>
+<tr>
+	<td>{{ form.is_public.label_tag}}</td>
+	<td>{{ form.is_public }} </td>
+</tr>
+<tr>
+	<td>{{ form.is_searchable.label_tag}}</td>
+	<td>{{ form.is_searchable }} </td>
 </table>
 
 <!-- NEED TO IMPLEMENT ERROR CHECKING -->
 
 <br>
 <input type="submit" value="Create Bulletin" />
-</form>
+</form> 
+<p style="word-wrap: break-word;">Making a bulletin <b>public</b> means that all of the bulletin information, including uploaded documents, will be stored unencrypted, and will be accessible, in their entirety, to all users of Secure Witness.  If a bulletin is not made public, all information will be encrypted on the server, and users of Secure Witness will have to request your permission to view the bulletin.</p>
+<p style="word-wrap: break-word;">Making a bulletin <b>searchable</b> means that the title of the bulletin will be stored unencrypted on the server to allow users to search for your bulletin by keyword.  By default all public bulletins are searchable.</p>
 </div>
+
 {% endblock %}

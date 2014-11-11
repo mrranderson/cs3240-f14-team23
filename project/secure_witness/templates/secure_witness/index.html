@@ -1,11 +1,9 @@
-<!--
-{% load staticfiles %}
-<link rel="stylesheet" type="text/css" href="{% static 'polls/style.css' %}" />
--->
 <a href="/search">Search Bulletins</a> <br><br>
 
 <a href="/create_bulletin">Create New Bulletin</a>
+{% block content %}
 {% if bulletin_list %}
+	<h3>List of All Bulletins:</h3>
     <ul>
     {% for bulletin in bulletin_list %}
       <li>Bulletin {{forloop.counter}}: <a href="{% url 'detail_bulletin' bulletin.id %}">{{ bulletin.title }}</a></li>
@@ -14,5 +12,33 @@
 {% else %}
     <p>No bulletins are available.</p>
 {% endif %}
+
+<h3>List of Your Bulletins:</h3>
+{% if your_bulletins %}
+	<ul>
+	{%for bulletin in your_bulletins %}
+		<li>Bulletin {{forloop.counter}}: <a href="{% url 'detail_bulletin' bulletin.id %}">{{ bulletin.title }}</a></li>
+	{%endfor%}
+	</ul>
+{%else%}
+	<p>You have created no bulletins</p>
+{%endif%}
+
+<h3>List of Public Bulletins</h3>
+{% if pub_bulletins %}
+	<ul>
+	{%for bulletin in pub_bulletins %}
+		<li>Bulletin {{forloop.counter}}: <a href="{% url 'detail_bulletin' bulletin.id %}">{{ bulletin.title }}</a></li>
+	{%endfor%}
+	</ul>
+{%else%}
+	<p>There are no public bulletins</p>
+{%endif%}
+
+<a href="/inbox">{{inbox_str}}</a>
+
+{% endblock %}
+<br><br>
 <a href="/logout">Logout</a>
+
 

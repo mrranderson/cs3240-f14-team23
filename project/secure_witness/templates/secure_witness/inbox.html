@@ -1,0 +1,15 @@
+
+<h3>Welcome to your inbox!</h3>
+{% block content %}
+
+	<p>You have {{num_new}} new messages</p>
+
+
+<br><br>
+
+<ul>
+{% for n in notifications %}
+	<li>{{n.subject}}</li>
+{% endfor %}
+</ul>
+{% endblock %}
