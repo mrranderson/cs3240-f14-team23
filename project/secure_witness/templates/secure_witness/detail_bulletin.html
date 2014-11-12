@@ -1,5 +1,6 @@
 {% block content %}
 <div style="position: absolute;top: 40%;left: 50%;margin-top: -100px;margin-left: -180px;width: 360px;height: 200px; padding-left: 25px; padding-right: 10px" >
+{%if bulletin.is_public%}
 <h1>{{ bulletin.title }}</h1>
 
 <h2>Author: {{ bulletin.author }}</h2>
@@ -10,10 +11,33 @@ Location: {{bulletin.location}}</br>
 
 <p>Description: <br>
 {{bulletin.description}}</p>
+{%elif bulletin.is_searchable%}
+<h1>{{ bulletin.title }}</h1>
 
+<h2>Author: Encrypted Data</h2>
 
+<h3>Date created: Encrypted Data <br>
+Date modified: Encrypted Data <br>
+Location: Encrypted Data<br>
 
+<p>Description: <br>
+Encrypted Data</p>
+{%else%}
+<h1>This bulletin is private</h1>
+
+<h2>Author: Encrypted Data</h2>
+
+<h3>Date created: Encrypted Data <br>
+Date modified: Encrypted Data <br>
+Location: Encrypted Data<br>
+
+<p>Description: Encrypted Data</p>
+{%endif%}
 </div>
 
-<a href="{% url 'follow_bulletin' bulletin.id %}">Follow This Bulletin</a>
+{%if bulletin.is_public%}
+	<a href="{% url 'follow_bulletin' bulletin.id %}">Follow This Bulletin</a>
+{%elif bulletin.is_searchable%}
+	<a href="/">Request Access to This Bulletin</a>
+{%endif%}
 {% endblock %}
