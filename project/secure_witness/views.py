@@ -78,11 +78,12 @@ def create_bulletin(request):
             b.author = request.user
             if(form.cleaned_data['is_public']):
                 b.is_public = True
-            else:
+                b.is_searchable = True
+            elif (form.cleaned_data['is_searchable']):
                 b.is_public = False
-            if(form.cleaned_data['is_searchable']):
                 b.is_searchable = True
             else:
+                b.is_public = False
                 b.is_searchable = False
             b.save()
         else:
