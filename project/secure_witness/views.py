@@ -83,7 +83,7 @@ def create_bulletin(request):
                 b.is_public = False
                 b.is_searchable = True
             else:
-                b.is_public = False
+                b.is_public = False                                                                                                         
                 b.is_searchable = False
             b.save()
         else:
@@ -95,9 +95,30 @@ def create_bulletin(request):
     return render(request, 'secure_witness/create_bulletin.html', {'form': form})
 
 @login_required
+def request_bulletin(request, bulletin_id):
+    #Code needs work - cases
+    n = Notification()
+    bulletin = get_object_or_404(Bulletin, pk=bulletin_id)
+    if(bulletin.is_public):
+        i=0
+    elif(bulletin.is_searchable):
+        n.subject = str(request.user) + ' has requested access to your bulletin'
+        n.sender = request.user
+        n.recipient = bulletin.author
+        n.message = 'This is an automatic notification that user ' + str(request.user) + ' has requested access to your bulletin: ' + str(bulletin.title)
+        n.bulletin = bulletin
+        n.save()
+    return HttpResponseRedirect('/')
+
+@login_required
 def detail_bulletin(request, bulletin_id):
     bulletin = get_object_or_404(Bulletin, pk=bulletin_id)
     return render(request, 'secure_witness/detail_bulletin.html', {'bulletin': bulletin})
+    
+@login_required
+def view_notification(request, notification_id):
+    notification = get_object_or_404(Notification, pk=notification_id)
+    return HttpResponseRedirect('/')
 
 @login_required
 def inbox(request):

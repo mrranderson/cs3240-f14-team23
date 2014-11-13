@@ -15,4 +15,6 @@ urlpatterns = patterns('',
         url(r'^(?P<bulletin_id>\d+)/', views.detail_bulletin, name='detail_bulletin'),
         url(r'^inbox/', views.inbox, name='inbox'),
         url(r'^follow/(?P<bulletin_id>\d+)/', views.follow_bulletin, name='follow_bulletin'),
+        url(r'^request/(?P<bulletin_id>\d+)/', views.request_bulletin, name='request_bulletin'),
+        url(r'^notification/(?P<notification_id>\d+)/', views.view_notification, name='view_notification'),
 )
