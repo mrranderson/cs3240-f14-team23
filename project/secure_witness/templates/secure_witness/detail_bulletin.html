@@ -44,6 +44,6 @@ Location: Encrypted Data<br>
 {%if bulletin.is_public%}
 	<a href="{% url 'follow_bulletin' bulletin.id %}">Follow This Bulletin</a>
 {%elif bulletin.is_searchable%}
-	<a href="/">Request Access to This Bulletin</a>
+	<a href="{% url 'request_bulletin' bulletin.id %}">Request Access to This Bulletin</a>
 {%endif%}
 {% endblock %}
