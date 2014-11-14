@@ -18,4 +18,5 @@ urlpatterns = patterns('',
         url(r'^edit_bulletin/(?P<bulletin_id>\d+)/', views.edit_bulletin, name='edit_bulletin'),
         url(r'^request/(?P<bulletin_id>\d+)/', views.request_bulletin, name='request_bulletin'),
         url(r'^notification/(?P<notification_id>\d+)/', views.view_notification, name='view_notification'),
+        url(r'^delete_bulletin/(?P<bulletin_id>\d+)/', views.delete_bulletin, name='delete_bulletin'),
 )

@@ -167,4 +167,9 @@ def edit_bulletin(request, bulletin_id):
         form = BulletinForm(initial={'title': bulletin.title, 'description':bulletin.description, 'location':bulletin.location})
     return render(request, 'secure_witness/edit_bulletin.html', {'bulletin': bulletin, 'form': form})
 
+def delete_bulletin(request, bulletin_id):
+    bulletin = get_object_or_404(Bulletin, pk=bulletin_id)
+    bulletin.delete()
+    return HttpResponseRedirect('/')
+
 # Create your views here.
