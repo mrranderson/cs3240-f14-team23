@@ -96,7 +96,7 @@ def create_bulletin(request):
 @login_required
 def detail_bulletin(request, bulletin_id):
     bulletin = get_object_or_404(Bulletin, pk=bulletin_id)
-    return render(request, 'secure_witness/detail_bulletin.html', {'bulletin': bulletin})
+    return render(request, 'secure_witness/detail_bulletin.html', {'bulletin': bulletin, 'user':request.user})
 
 @login_required
 def inbox(request):
@@ -116,5 +116,29 @@ def follow_bulletin(request, bulletin_id):
     n.bulletin = bulletin
     n.save()
     return HttpResponseRedirect('/')
+
+def edit_bulletin(request, bulletin_id):
+    bulletin = get_object_or_404(Bulletin, pk=bulletin_id)
+    if request.method == "POST":
+        form = BulletinForm(request.POST)
+        if form.is_valid():
+            bulletin.title = form.cleaned_data['title']
+            bulletin.location = form.cleaned_data['location']
+            bulletin.description = form.cleaned_data['description']
+            if(form.cleaned_data['is_public']):
+                bulletin.is_public = True
+            else:
+                bulletin.is_public = False
+            if(form.cleaned_data['is_searchable']):
+                bulletin.is_searchable = True
+            else:
+                bulletin.is_searchable = False
+            bulletin.save()
+        else:
+            return HttpResponseRedirect('/logout')
+        return HttpResponseRedirect('/')
+    else:
+        form = BulletinForm(initial={'title': bulletin.title, 'description':bulletin.description, 'location':bulletin.location})
+    return render(request, 'secure_witness/edit_bulletin.html', {'bulletin': bulletin, 'form': form})
 
 # Create your views here.
