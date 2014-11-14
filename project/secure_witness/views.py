@@ -122,7 +122,9 @@ def detail_bulletin(request, bulletin_id):
 @login_required
 def view_notification(request, notification_id):
     notification = get_object_or_404(Notification, pk=notification_id)
-    return HttpResponseRedirect('/')
+    notification.has_read = True
+    notification.save()
+    return render(request, 'secure_witness/notification.html', {'n': notification})
 
 
 @login_required
@@ -159,7 +161,8 @@ def follow_bulletin(request, bulletin_id):
     n.bulletin = bulletin
     n.save()
     return HttpResponseRedirect('/')
-
+    
+@login_required
 def edit_bulletin(request, bulletin_id):
     bulletin = get_object_or_404(Bulletin, pk=bulletin_id)
     if request.method == "POST":
@@ -172,6 +175,16 @@ def edit_bulletin(request, bulletin_id):
                 bulletin.is_public = True
             else:
                 bulletin.is_public = False
+                for fol in Follow.objects.filter(bulletin=bulletin):
+                    n = Notification()
+                    n.subject = 'A bulletin you were following has been made private'
+                    n.sender = request.user
+                    n.recipient = fol.owner
+                    n.message = 'this means you can no longer follow it, you may request permission'
+                    n.bulletin = bulletin
+                    n.save()
+                    fol.delete()
+                
             if(form.cleaned_data['is_searchable']):
                 bulletin.is_searchable = True
             else:
@@ -179,6 +192,8 @@ def edit_bulletin(request, bulletin_id):
             bulletin.save()
             
             #Send notification to users following the bulletin
+            
+            
             for fol in Follow.objects.filter(bulletin=bulletin):
                 n = Notification()
                 n.subject = 'something youre following has been changed'
@@ -192,9 +207,10 @@ def edit_bulletin(request, bulletin_id):
             return HttpResponseRedirect('/logout')
         return HttpResponseRedirect('/')
     else:
-        form = BulletinForm(initial={'title': bulletin.title, 'description':bulletin.description, 'location':bulletin.location})
+        form = BulletinForm(initial={'title': bulletin.title, 'description':bulletin.description, 'location':bulletin.location, 'is_public':bulletin.is_public, 'is_searchable':bulletin.is_searchable})
     return render(request, 'secure_witness/edit_bulletin.html', {'bulletin': bulletin, 'form': form})
 
+@login_required
 def delete_bulletin(request, bulletin_id):
     bulletin = get_object_or_404(Bulletin, pk=bulletin_id)
     bulletin.delete()
