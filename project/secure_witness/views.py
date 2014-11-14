@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from forms import UserForm, BasicSearchForm, BulletinForm
 from django.contrib.auth import login, authenticate, logout
-from secure_witness.models import Bulletin, Document, Notification
+from secure_witness.models import Bulletin, Document, Notification, Follow
 from django.contrib.auth.models import User
 
 #def IndexView(request):
@@ -25,8 +25,9 @@ def IndexView(request):
         
     your_bulletins = Bulletin.objects.filter(author=request.user)
     pub_bulletins = Bulletin.objects.filter(is_public=True)
+    fol_bulletins = Follow.objects.filter(owner=request.user)
     
-    return render(request, 'secure_witness/index.html', {'bulletin_list': bulletin_list, 'inbox_str': inbox_str, 'your_bulletins': your_bulletins, 'pub_bulletins': pub_bulletins}) 
+    return render(request, 'secure_witness/index.html', {'bulletin_list': bulletin_list, 'inbox_str': inbox_str, 'your_bulletins': your_bulletins, 'pub_bulletins': pub_bulletins, 'fol_bulletins': fol_bulletins}) 
 
 @login_required
 def basic_search(request):
@@ -132,9 +133,25 @@ def inbox(request):
     
 @login_required
 def follow_bulletin(request, bulletin_id):
-    #Code needs work - cases
-    n = Notification()
+    
     bulletin = get_object_or_404(Bulletin, pk=bulletin_id)
+    
+    if request.user.username == bulletin.author.username:
+        return HttpResponseRedirect('/')
+    for fol in Follow.objects.filter(bulletin=bulletin):
+        if fol.owner == request.user:
+            return HttpResponseRedirect('/')
+    if bulletin.is_public == False:
+        return HttpResponseRedirect('/')
+        
+    #Create a follow object
+    f = Follow()
+    f.owner = request.user
+    f.bulletin = bulletin
+    f.save()
+    
+    #Create a notification object
+    n = Notification()
     n.subject = str(request.user) + ' has started following your bulletin'
     n.sender = request.user
     n.recipient = bulletin.author
@@ -160,6 +177,17 @@ def edit_bulletin(request, bulletin_id):
             else:
                 bulletin.is_searchable = False
             bulletin.save()
+            
+            #Send notification to users following the bulletin
+            for fol in Follow.objects.filter(bulletin=bulletin):
+                n = Notification()
+                n.subject = 'something youre following has been changed'
+                n.sender = request.user
+                n.recipient = fol.owner
+                n.message = 'auto generated'
+                n.bulletin = bulletin
+                n.save()
+            
         else:
             return HttpResponseRedirect('/logout')
         return HttpResponseRedirect('/')

@@ -36,3 +36,7 @@ class Notification(models.Model):
     is_request = models.BooleanField(default=False)
     is_update = models.BooleanField(default=False)
     bulletin = models.ForeignKey(Bulletin)
+    
+class Follow(models.Model):
+    owner = models.ForeignKey(User)
+    bulletin = models.ForeignKey(Bulletin)

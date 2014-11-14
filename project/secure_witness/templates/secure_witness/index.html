@@ -35,6 +35,17 @@
 	<p>There are no public bulletins</p>
 {%endif%}
 
+<h3>Bulletins You Are Following:</h3>
+{% if fol_bulletins %}
+	<ul>
+	{%for bulletin in fol_bulletins %}
+		<li>Bulletin {{forloop.counter}}: <a href="{% url 'detail_bulletin' bulletin.bulletin.id %}">{{ bulletin.bulletin.title }}</a></li>
+	{%endfor%}
+	</ul>
+{%else%}
+	<p>You are following no bulletins</p>
+{%endif%}
+
 <a href="/inbox">{{inbox_str}}</a>
 
 {% endblock %}
