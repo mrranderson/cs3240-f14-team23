@@ -9,7 +9,7 @@
 
 <ul>
 {% for n in notifications %}
-	<li><a href="{% url 'view_notification' n.id %}">{{n.subject}}</a></li>
+	<li><a href="{% url 'view_notification' n.id %}">{{n.subject}}</a> &nbsp;|&nbsp; <a href="{% url 'delete_notification' n.id %}">delete</a></li>
 {% endfor %}
 </ul>
 {% endblock %}

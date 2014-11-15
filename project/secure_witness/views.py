@@ -105,6 +105,7 @@ def request_bulletin(request, bulletin_id):
     elif(bulletin.is_searchable):
         n.subject = str(request.user) + ' has requested access to your bulletin'
         n.sender = request.user
+        n.is_request = True
         n.recipient = bulletin.author
         n.message = 'This is an automatic notification that user ' + str(request.user) + ' has requested access to your bulletin: ' + str(bulletin.title)
         n.bulletin = bulletin
@@ -213,7 +214,42 @@ def edit_bulletin(request, bulletin_id):
 @login_required
 def delete_bulletin(request, bulletin_id):
     bulletin = get_object_or_404(Bulletin, pk=bulletin_id)
-    bulletin.delete()
+    if bulletin.author == request.user:
+        bulletin.delete()
     return HttpResponseRedirect('/')
+    
+@login_required
+def delete_notification(request, notification_id):
+    notification = get_object_or_404(Notification, pk=notification_id)
+    if notification.recipient == request.user:
+        notification.delete()
+    return HttpResponseRedirect('/inbox')
+    
+@login_required
+def accept_notification(request, notification_id):
+    notification = get_object_or_404(Notification, pk=notification_id)
+    if notification.is_request == False:
+        return HttpResponseRedirect('/')
+    if notification.recipient != request.user:
+        return HttpResponseRedirect('/')
+    return HttpResponseRedirect('/inbox')
+
+@login_required
+def reject_notification(request, notification_id):
+    notification = get_object_or_404(Notification, pk=notification_id)
+    if notification.is_request == False:
+        return HttpResponseRedirect('/')
+    if notification.recipient != request.user:
+        return HttpResponseRedirect('/')
+    else:
+        n = Notification()
+        n.subject = str(request.user) + ' has rejected your request to view their bulletin: ' + str(notification.bulletin.title)
+        n.sender = request.user
+        n.recipient = notification.sender
+        n.message = 'auto generated'
+        n.bulletin = notification.bulletin
+        n.save()
+        notification.delete()
+        return HttpResponseRedirect('/inbox')
 
 # Create your views here.
