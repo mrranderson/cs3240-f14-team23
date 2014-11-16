@@ -26,3 +26,4 @@ class BulletinForm(forms.Form):
     is_encrypted = forms.BooleanField(required=False, label = 'Encrypt Bulletin?')
     is_public = forms.BooleanField(required=False, label = 'Make Public?')
     is_searchable = forms.BooleanField(required=False, label = 'Make Searchable?')
+    docfile = forms.FileField(label='Filefield')

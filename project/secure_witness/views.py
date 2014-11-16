@@ -112,7 +112,7 @@ def lexusadduser(request):
 @login_required
 def create_bulletin(request):
     if request.method == "POST":
-        form = BulletinForm(request.POST)
+        form = BulletinForm(request.POST, request.FILES)
         if form.is_valid():
             b = Bulletin()
             b.title = form.cleaned_data['title']
@@ -142,6 +142,8 @@ def create_bulletin(request):
             else:
                 b.is_public = False                                                                                                         
                 b.is_searchable = False
+	    #file upload
+	    b.docfile = request.FILES['docfile']
             b.save()
         else:
             return HttpResponseRedirect('/logout')

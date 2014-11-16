@@ -2,7 +2,7 @@
 <div style="position: absolute;top: 20%;left: 50%;margin-top: -100px;margin-left: -180px;width: 360px;height: 200px; padding-left: 25px; padding-right: 10px" >
 <h3>Create A New Bulletin</h3>
 
-<form method="post" action="/create_bulletin/">
+<form method="post" enctype="multipart/form-data" action="/create_bulletin/">
 {% csrf_token %}
     <table>
 <tr>
@@ -32,6 +32,10 @@
 <tr>
 	<td>{{ form.is_searchable.label_tag}}</td>
 	<td>{{ form.is_searchable }} </td>
+</tr>
+<tr>
+	<td>{{ form.docfile.label_tag}}</td>
+	<td>{{ form.docfile }}</td>
 </table>
 
 <!-- NEED TO IMPLEMENT ERROR CHECKING -->
