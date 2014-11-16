@@ -183,6 +183,7 @@ def detail_bulletin(request, bulletin_id):
         temp_b.title = decrypt_RSA(private_key_loc, str(bulletin.title))
         temp_b.description = decrypt_RSA(private_key_loc, str(bulletin.description))
         temp_b.location = decrypt_RSA(private_key_loc, str(bulletin.location))
+	temp_b.docfile = bulletin.docfile
         return render(request, 'secure_witness/detail_bulletin.html', {'bulletin': temp_b})
 
     return render(request, 'secure_witness/detail_bulletin.html', {'bulletin': bulletin})

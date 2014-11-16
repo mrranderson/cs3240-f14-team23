@@ -1,6 +1,9 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from secure_witness import views
+from django.conf import settings
+from django.conf.urls.static import static
+
 urlpatterns = patterns('',
     # Examples:
     # url(r'^$', 'project.views.home', name='home'),
@@ -22,4 +25,4 @@ urlpatterns = patterns('',
         url(r'^accept_notification/(?P<notification_id>\d+)/', views.accept_notification, name='accept_notification'),
         url(r'^reject_notification/(?P<notification_id>\d+)/', views.reject_notification, name='reject_notification'),
         url(r'^delete_notification/(?P<notification_id>\d+)/', views.delete_notification, name='delete_notification')
-)
+) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

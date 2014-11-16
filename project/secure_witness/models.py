@@ -14,7 +14,7 @@ class Bulletin(models.Model):
 	is_public = models.BooleanField(default=False)
 	is_searchable = models.BooleanField(default=False)
 	#file upload
-        docfile = models.FileField(upload_to='documents', default='settings.MEDIA_ROOT/temp')
+        docfile = models.FileField(upload_to='documents', blank=True, null=True)
 
         def filename(self):
         	return os.path.basename(self.docfile.name)

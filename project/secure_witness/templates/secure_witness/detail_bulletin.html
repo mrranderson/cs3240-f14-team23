@@ -21,6 +21,8 @@ Location: Encrypted Data<br>
 Date modified: {{bulletin.date_modified}}
 Location: {{bulletin.location}}</br>
 
+Files: <a href="{{ bulletin.docfile.url }}">{{ bulletin.docfile.name }}</a>
+
 <p>Description: <br>
 {{bulletin.description}}</p>
 {%if bulletin.author == user%}
