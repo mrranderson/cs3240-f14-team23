@@ -22,5 +22,7 @@ class BulletinForm(forms.Form):
     title = forms.CharField(label='Title')
     description = forms.CharField(label = 'Description')
     location = forms.CharField(label = 'Location')
+    pub_key = forms.CharField(required=False, label = 'Public Key')
+    is_encrypted = forms.BooleanField(required=False, label = 'Encrypt Bulletin?')
     is_public = forms.BooleanField(required=False, label = 'Make Public?')
     is_searchable = forms.BooleanField(required=False, label = 'Make Searchable?')

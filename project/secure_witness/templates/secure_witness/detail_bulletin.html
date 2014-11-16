@@ -1,6 +1,18 @@
 {% block content %}
 <div style="position: absolute;top: 40%;left: 50%;margin-top: -100px;margin-left: -180px;width: 360px;height: 200px; padding-left: 25px; padding-right: 10px" >
-{%if bulletin.is_public or bulletin.author = user%}
+{% if bulletin.is_encrypted and bulletin.author != user %}
+<h1>This bulletin is encrypted</h1>
+
+<h2>Author: Encrypted Data</h2>
+
+<h3>Date created: Encrypted Data <br>
+Date modified: Encrypted Data <br>
+Location: Encrypted Data<br>
+
+<p>Description: Encrypted Data</p>
+<a style="text-decoration:none" href="/"><input type="button" value="Back" /></a>
+
+{%elif bulletin.is_public or bulletin.author == user%}
 <h1>{{ bulletin.title }}</h1>
 
 <h2>Author: {{ bulletin.author }}</h2>
@@ -11,7 +23,7 @@ Location: {{bulletin.location}}</br>
 
 <p>Description: <br>
 {{bulletin.description}}</p>
-{%if bulletin.author = user%}
+{%if bulletin.author == user%}
 <a style="text-decoration:none" href="{% url 'edit_bulletin' bulletin.id %}"><input type = "button" value= "Edit Bulletin" /></a>
 <a style="text-decoration:none" href="{% url 'delete_bulletin' bulletin.id %}"><input type = "button" value= "Delete Bulletin" /></a>
 {%endif%}

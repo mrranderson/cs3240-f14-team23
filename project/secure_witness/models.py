@@ -10,8 +10,9 @@ class Bulletin(models.Model):
 	location = models.CharField(max_length=200)
 	description = models.CharField(max_length=200)
     	#display permissions
-        is_public = models.BooleanField(default=False)
-    	is_searchable = models.BooleanField(default=False)
+	is_encrypted = models.BooleanField(default=False)
+	is_public = models.BooleanField(default=False)
+	is_searchable = models.BooleanField(default=False)
 
 	def __unicode__(self):
 		return self.title

@@ -9,6 +9,48 @@ from forms import UserForm, BasicSearchForm, BulletinForm
 from django.contrib.auth import login, authenticate, logout
 from secure_witness.models import Bulletin, Document, Notification, Follow
 from django.contrib.auth.models import User
+from Crypto.PublicKey import RSA
+#from Crypto.Cipher import PKCS1_v1_5
+from Crypto.Cipher import PKCS1_OAEP
+from base64 import b64decode
+
+def encrypt_RSA(public_key_loc, message):
+  '''
+  param: public_key_loc Path to public key
+  param: message String to be encrypted
+  return base64 encoded encrypted string
+  '''
+  key = open(public_key_loc, "r").read()
+  rsakey = RSA.importKey(key)
+  rsakey = PKCS1_OAEP.new(rsakey)
+  #rsakey = PKCS1_v1_5.new(rsakey)
+  encrypted = rsakey.encrypt(message)
+  return encrypted.encode('base64')
+
+def decrypt_RSA(private_key_loc, package):
+  '''
+  param: public_key_loc Path to your private key
+  param: package String to be decrypted
+  return decrypted string
+  '''
+  key = open(private_key_loc, "r").read()
+  rsakey = RSA.importKey(key)
+  rsakey = PKCS1_OAEP.new(rsakey)
+  #rsakey = PKCS1_v1_5.new(rsakey)
+  decrypted = rsakey.decrypt(b64decode(package))
+  return decrypted
+
+def generate_RSA(bits=2048):
+  '''
+  Generate an RSA keypair with an exponent of 65537 in PEM format
+  param: bits The key length in bits
+  Return private key and public key
+  '''
+  new_key = RSA.generate(bits) #, 65537)
+  public_key = new_key.publickey().exportKey("PEM")
+  private_key = new_key.exportKey("PEM")
+  return private_key, public_key
+
 
 #def IndexView(request):
 #	return HttpResponse("Index")
@@ -77,6 +119,20 @@ def create_bulletin(request):
             b.location = form.cleaned_data['location']
             b.description = form.cleaned_data['description']
             b.author = request.user
+
+						#encryption handled here
+            if(form.cleaned_data['is_encrypted']):
+                b.is_encrypted = True
+                pub_key = form.cleaned_data['pub_key']
+                title = str(form.cleaned_data['title'])
+                location = str(form.cleaned_data['location'])
+                description = str(form.cleaned_data['description'])
+                #author = str(request.user)
+                b.title = encrypt_RSA(pub_key, title)
+                b.location = encrypt_RSA(pub_key, location)
+                b.description = encrypt_RSA(pub_key, description)
+                #b.author = encrypt_RSA(pub_key, author)
+
             if(form.cleaned_data['is_public']):
                 b.is_public = True
                 b.is_searchable = True
@@ -117,6 +173,15 @@ def detail_bulletin(request, bulletin_id):
     bulletin = get_object_or_404(Bulletin, pk=bulletin_id)
 
     #return render(request, 'secure_witness/detail_bulletin.html', {'bulletin': bulletin, 'user':request.user})
+
+    #Decrypt if user is author or has permissions to view
+    if bulletin.is_encrypted and request.user == bulletin.author:
+        temp_b = bulletin
+        private_key_loc = '/home/student/cs3240/final_project/mykey.pem'
+        temp_b.title = decrypt_RSA(private_key_loc, str(bulletin.title))
+        temp_b.description = decrypt_RSA(private_key_loc, str(bulletin.description))
+        temp_b.location = decrypt_RSA(private_key_loc, str(bulletin.location))
+        return render(request, 'secure_witness/detail_bulletin.html', {'bulletin': temp_b})
 
     return render(request, 'secure_witness/detail_bulletin.html', {'bulletin': bulletin})
     
