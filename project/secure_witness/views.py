@@ -13,6 +13,7 @@ from Crypto.PublicKey import RSA
 #from Crypto.Cipher import PKCS1_v1_5
 from Crypto.Cipher import PKCS1_OAEP
 from base64 import b64decode
+from models import UserProfile
 
 def encrypt_RSA(public_key_loc, message):
   '''
@@ -95,15 +96,21 @@ def lexusadduser(request):
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
             confirm = form.cleaned_data['confirm_password']
+            public_key_loc = form.cleaned_data['public_key_loc']
+            private_key_loc = form.cleaned_data['private_key_loc']
             if password == confirm:
                 new_user = User.objects.create_user(username=username, password=password)
-                user = authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password'])
-                login(request,user)
+                auth_user = authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password'])
+                #user.profile.public_key = public_key_loc
+                #user.profile.private_key = private_key_loc 
+                UserProfile.objects.create(user=auth_user, public_key=public_key_loc, private_key=private_key_loc)
+                login(request,auth_user)
                 # redirect, or however you want to get to the main view
                 return HttpResponseRedirect('/')
+            
+            
             else:
                 form = UserForm()
-                
     else:
         form = UserForm() 
 
@@ -123,7 +130,7 @@ def create_bulletin(request):
 						#encryption handled here
             if(form.cleaned_data['is_encrypted']):
                 b.is_encrypted = True
-                pub_key = form.cleaned_data['pub_key']
+                pub_key = request.user.profile.public_key
                 title = str(form.cleaned_data['title'])
                 location = str(form.cleaned_data['location'])
                 description = str(form.cleaned_data['description'])
@@ -143,7 +150,7 @@ def create_bulletin(request):
                 b.is_public = False                                                                                                         
                 b.is_searchable = False
 	    #file upload
-	    b.docfile = request.FILES['docfile']
+            b.docfile = request.FILES['docfile']
             b.save()
         else:
             return HttpResponseRedirect('/logout')

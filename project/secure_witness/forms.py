@@ -6,7 +6,9 @@ class UserForm(forms.Form):
     username = forms.CharField(label='Username')
     password = forms.CharField(widget=forms.PasswordInput())
     confirm_password = forms.CharField(widget=forms.PasswordInput())
-    
+    public_key_loc = forms.CharField(max_length=200, label='Public Key Location')
+    private_key_loc = forms.CharField(max_length=200, label='Private Key Location')  
+ 
     def clean_username(self):
         username = self.cleaned_data['username']
         try:
@@ -26,4 +28,4 @@ class BulletinForm(forms.Form):
     is_encrypted = forms.BooleanField(required=False, label = 'Encrypt Bulletin?')
     is_public = forms.BooleanField(required=False, label = 'Make Public?')
     is_searchable = forms.BooleanField(required=False, label = 'Make Searchable?')
-    docfile = forms.FileField(label='Filefield')
+    docfile = forms.FileField(required=False, label='Filefield')
