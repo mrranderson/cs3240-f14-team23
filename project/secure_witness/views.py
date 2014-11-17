@@ -59,6 +59,11 @@ def generate_RSA(bits=2048):
 @login_required
 def IndexView(request):
     bulletin_list = Bulletin.objects.all()
+
+    for b in bulletin_list:
+        if b.author == request.user:
+            b.title = decrypt_RSA(request.user.profile.private_key, str(b.title))
+
     current_user = request.user
     notifications = Notification.objects.filter(recipient=current_user, has_read=False)
     if len(notifications) != 0:
@@ -67,6 +72,10 @@ def IndexView(request):
         inbox_str = 'Inbox'
         
     your_bulletins = Bulletin.objects.filter(author=request.user)
+
+    for b in your_bulletins:
+        b.title = decrypt_RSA(request.user.profile.private_key, str(b.title))
+
     pub_bulletins = Bulletin.objects.filter(is_public=True)
     fol_bulletins = Follow.objects.filter(owner=request.user)
     
@@ -186,7 +195,7 @@ def detail_bulletin(request, bulletin_id):
     #Decrypt if user is author or has permissions to view
     if bulletin.is_encrypted and request.user == bulletin.author:
         temp_b = bulletin
-        private_key_loc = '/home/student/cs3240/final_project/mykey.pem'
+        private_key_loc = request.user.profile.private_key
         temp_b.title = decrypt_RSA(private_key_loc, str(bulletin.title))
         temp_b.description = decrypt_RSA(private_key_loc, str(bulletin.description))
         temp_b.location = decrypt_RSA(private_key_loc, str(bulletin.location))
