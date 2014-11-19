@@ -28,6 +28,18 @@
 	<p>You have created no bulletins</p>
 {%endif%}
 
+{%if folder_list%}
+	<h3>List of All Folders:</h3>
+    <ul>
+    {%for folder in folder_list%}
+      <li><a href="{% url 'detail_folder' folder.id %}">{{folder.title}}</a></li>
+    {%endfor%}
+    </ul>
+{%else%}
+    <p>No folders are available.</p>
+{%endif%}
+<a href="/create_folder">Create New Folder</a>
+
 <h3>List of Public Bulletins</h3>
 {% if pub_bulletins %}
 	<ul>

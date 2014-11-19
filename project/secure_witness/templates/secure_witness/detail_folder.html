@@ -1,0 +1,35 @@
+{% block content %}
+<div style="position: absolute;top: 40%;left: 50%;margin-top: -100px;margin-left: -180px;width: 360px;height: 200px; padding-left: 25px; padding-right: 10px" >
+<h1>{{ folder.title }}</h1>
+
+{% if not folder.parent_folder == None %}
+<h3>Parent folder: <a href="{% url 'detail_folder' folder.parent_folder.id %}">{{folder.parent_folder}}</a></h3>
+{% endif %}
+
+{% if subfolder_list %}
+<h3>Subfolders:</h3><br>
+<ul>
+{% for f in subfolder_list %}
+  <li><a href="{% url 'detail_folder' f.id %}">{{f.title}}</a></li>
+{% endfor %}
+</ul>
+{% else %}
+<p>This folder has no subfolders.</p>
+{% endif %}
+
+{% if bulletin_list %}
+<h3>Bulletins</h3><br>
+<ul>
+{% for b in bulletin_list %}
+  <li><a href="{% url 'detail_bulletin' b.id %}"> {{b.title}} </a></li>
+{% endfor %}
+</ul>
+{% else %}
+<p>This folder is empty.</p>
+{% endif %}
+
+<a style="text-decoration:none" href="/"><input type="button" value="Back" /></a>
+<a style="text-decoration:none" href="{% url 'edit_folder' folder.id %}"><input type="button" value="Edit" /></a>
+<a style="text-decoration:none" href="{% url 'delete_folder' folder.id %}"><input type="button" value="Delete" /></a>
+</div>
+{% endblock %}

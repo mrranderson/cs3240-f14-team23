@@ -53,3 +53,9 @@ class Notification(models.Model):
 class Follow(models.Model):
     owner = models.ForeignKey(User)
     bulletin = models.ForeignKey(Bulletin)
+
+class Folder(models.Model):
+    title = models.CharField(max_length=200)
+    def __unicode__(self):
+        return self.title
+    parent_folder = models.ForeignKey('self', null=True, on_delete=models.SET_NULL)

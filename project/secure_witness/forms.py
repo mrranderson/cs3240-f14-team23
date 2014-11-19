@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.forms import ModelForm
 from django import forms
+from secure_witness/models.py import Folder
 
 class UserForm(forms.Form):
     username = forms.CharField(label='Username')
@@ -29,3 +30,7 @@ class BulletinForm(forms.Form):
     is_public = forms.BooleanField(required=False, label = 'Make Public?')
     is_searchable = forms.BooleanField(required=False, label = 'Make Searchable?')
     docfile = forms.FileField(required=False, label='Filefield')
+
+class FolderForm(forms.Form):
+    title = forms.CharField(label='Title')
+    parent_folder = forms.ModelChoiceField(queryset=Folder.objects.all(), label='Parent Folder', empty_label='No parent folder.')

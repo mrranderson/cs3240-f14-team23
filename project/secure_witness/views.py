@@ -5,9 +5,9 @@ from django.core.urlresolvers import reverse
 from django.views import generic
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
-from forms import UserForm, BasicSearchForm, BulletinForm
+from forms import UserForm, BasicSearchForm, BulletinForm, FolderForm
 from django.contrib.auth import login, authenticate, logout
-from secure_witness.models import Bulletin, Document, Notification, Follow
+from secure_witness.models import Bulletin, Document, Notification, Follow, Folder
 from django.contrib.auth.models import User
 from Crypto.PublicKey import RSA
 #from Crypto.Cipher import PKCS1_v1_5
@@ -336,4 +336,27 @@ def reject_notification(request, notification_id):
         notification.delete()
         return HttpResponseRedirect('/inbox')
 
+def create_folder(request):
+    if request.method == "POST":
+        form = FolderForm(request.POST)
+        if form.is_valid():
+            f = Folder()
+            f.title = form.cleaned_data['title']
+            f.parent_folder = form.cleaned_data['parent_folder']
+            f.save()
+        return HttpResponseRedirect('/')
+    else:
+        form = FolderForm()
+    return render(request, 'secure_witness/create_folder.html', {'form': form})
+
+def detail_folder(request, folder_id):
+    f = get_object_or_404(Folder, pk=folder_id)
+    bulletin_list = Bulletin.objects.filter(folder = f)
+    subfolder_list = Folder.objects.filter(parent_folder = f)
+    return render(request, 'secure_witness/detail_folder.html', {'folder': f, 'subfoder_list': subfolder_list, 'bulletin_list': bulletin_list})
+
+def delete_folder(request, folder_id):
+    f = get_object_or_404(Folder, pk=folder_id)
+    f.delete()
+    return HttpResponseRedirect('/')
 # Create your views here.
