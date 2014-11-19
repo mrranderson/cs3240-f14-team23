@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.forms import ModelForm
 from django import forms
-from secure_witness/models.py import Folder
+from secure_witness.models import Folder
 
 class UserForm(forms.Form):
     username = forms.CharField(label='Username')
