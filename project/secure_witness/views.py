@@ -34,12 +34,12 @@ def decrypt_RSA(private_key_loc, package):
   param: package String to be decrypted
   return decrypted string
   '''
-  key = open(private_key_loc, "r").read()
-  rsakey = RSA.importKey(key)
-  rsakey = PKCS1_OAEP.new(rsakey)
-  #rsakey = PKCS1_v1_5.new(rsakey)
-  decrypted = rsakey.decrypt(b64decode(package))
-  return decrypted
+  #key = open(private_key_loc, "r").read()
+  #rsakey = RSA.importKey(key)
+  #rsakey = PKCS1_OAEP.new(rsakey)
+  #rsakey = PKCS1_v1_5.new(rsakey) #the original comment
+  #decrypted = rsakey.decrypt(b64decode(package))
+  #return decrypted
 
 def generate_RSA(bits=2048):
   '''
@@ -72,6 +72,7 @@ def IndexView(request):
         inbox_str = 'Inbox'
         
     your_bulletins = Bulletin.objects.filter(author=request.user)
+    folder_list = Folder.objects.all()
 
     for b in your_bulletins:
         b.title = decrypt_RSA(request.user.profile.private_key, str(b.title))
@@ -79,7 +80,7 @@ def IndexView(request):
     pub_bulletins = Bulletin.objects.filter(is_public=True)
     fol_bulletins = Follow.objects.filter(owner=request.user)
     
-    return render(request, 'secure_witness/index.html', {'bulletin_list': bulletin_list, 'inbox_str': inbox_str, 'your_bulletins': your_bulletins, 'pub_bulletins': pub_bulletins, 'fol_bulletins': fol_bulletins}) 
+    return render(request, 'secure_witness/index.html', {'bulletin_list': bulletin_list, 'inbox_str': inbox_str, 'your_bulletins': your_bulletins, 'pub_bulletins': pub_bulletins, 'fol_bulletins': fol_bulletins, 'folder_list':folder_list}) 
 
 @login_required
 def basic_search(request):
@@ -135,6 +136,7 @@ def create_bulletin(request):
             b.location = form.cleaned_data['location']
             b.description = form.cleaned_data['description']
             b.author = request.user
+            b.folder = form.cleaned_data['folder']
 
 						#encryption handled here
             if(form.cleaned_data['is_encrypted']):
@@ -159,7 +161,7 @@ def create_bulletin(request):
                 b.is_public = False                                                                                                         
                 b.is_searchable = False
 	    #file upload
-            b.docfile = request.FILES['docfile']
+            #b.docfile = request.FILES['docfile']
             b.save()
         else:
             return HttpResponseRedirect('/logout')
@@ -199,7 +201,7 @@ def detail_bulletin(request, bulletin_id):
         temp_b.title = decrypt_RSA(private_key_loc, str(bulletin.title))
         temp_b.description = decrypt_RSA(private_key_loc, str(bulletin.description))
         temp_b.location = decrypt_RSA(private_key_loc, str(bulletin.location))
-	temp_b.docfile = bulletin.docfile
+	#temp_b.docfile = bulletin.docfile
         return render(request, 'secure_witness/detail_bulletin.html', {'bulletin': temp_b})
 
     return render(request, 'secure_witness/detail_bulletin.html', {'bulletin': bulletin})
@@ -353,10 +355,23 @@ def detail_folder(request, folder_id):
     f = get_object_or_404(Folder, pk=folder_id)
     bulletin_list = Bulletin.objects.filter(folder = f)
     subfolder_list = Folder.objects.filter(parent_folder = f)
-    return render(request, 'secure_witness/detail_folder.html', {'folder': f, 'subfoder_list': subfolder_list, 'bulletin_list': bulletin_list})
+    return render(request, 'secure_witness/detail_folder.html', {'folder': f, 'subfolder_list': subfolder_list, 'bulletin_list': bulletin_list})
 
 def delete_folder(request, folder_id):
     f = get_object_or_404(Folder, pk=folder_id)
     f.delete()
     return HttpResponseRedirect('/')
+
+def edit_folder(request, folder_id):
+    f = get_object_or_404(Folder, pk=folder_id) 
+    if request.method == "POST":
+        form = FolderForm(request.POST)
+        if form.is_valid():
+            f.title = form.cleaned_data['title']
+            f.parent_folder = form.cleaned_data['parent_folder']
+            f.save()
+        return HttpResponseRedirect('/')
+    else:
+        form = FolderForm(initial={'title':f.title})
+    return render(request, 'secure_witness/edit_folder.html', {'folder': f, 'form': form})
 # Create your views here.

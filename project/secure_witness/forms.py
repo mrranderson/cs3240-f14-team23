@@ -30,6 +30,7 @@ class BulletinForm(forms.Form):
     is_public = forms.BooleanField(required=False, label = 'Make Public?')
     is_searchable = forms.BooleanField(required=False, label = 'Make Searchable?')
     docfile = forms.FileField(required=False, label='Filefield')
+    folder = forms.ModelChoiceField(queryset=Folder.objects.all(), label='Parent Folder', empty_label='No parent folder.')
 
 class FolderForm(forms.Form):
     title = forms.CharField(label='Title')
