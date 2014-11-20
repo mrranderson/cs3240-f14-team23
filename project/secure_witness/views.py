@@ -61,7 +61,7 @@ def IndexView(request):
     bulletin_list = Bulletin.objects.all()
 
     for b in bulletin_list:
-        if b.author == request.user:
+        if b.author == request.user and request.user.profile.private_key != u'':
             b.title = decrypt_RSA(request.user.profile.private_key, str(b.title))
 
     current_user = request.user
@@ -74,7 +74,8 @@ def IndexView(request):
     your_bulletins = Bulletin.objects.filter(author=request.user)
 
     for b in your_bulletins:
-        b.title = decrypt_RSA(request.user.profile.private_key, str(b.title))
+        if request.user.profile.private_key != u'':
+            b.title = decrypt_RSA(request.user.profile.private_key, str(b.title))
 
     pub_bulletins = Bulletin.objects.filter(is_public=True)
     fol_bulletins = Follow.objects.filter(owner=request.user)
@@ -105,13 +106,17 @@ def lexusadduser(request):
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
             confirm = form.cleaned_data['confirm_password']
-            public_key_loc = form.cleaned_data['public_key_loc']
-            private_key_loc = form.cleaned_data['private_key_loc']
+
+            public_key_loc = "" 
+            if str(form.cleaned_data['public_key_loc']) != "":
+                public_key_loc = form.cleaned_data['public_key_loc']
+
+            private_key_loc = ""
+            if str(form.cleaned_data['private_key_loc']) != "":
+                private_key_loc = form.cleaned_data['private_key_loc']
             if password == confirm:
                 new_user = User.objects.create_user(username=username, password=password)
                 auth_user = authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password'])
-                #user.profile.public_key = public_key_loc
-                #user.profile.private_key = private_key_loc 
                 UserProfile.objects.create(user=auth_user, public_key=public_key_loc, private_key=private_key_loc)
                 login(request,auth_user)
                 # redirect, or however you want to get to the main view
@@ -135,9 +140,8 @@ def create_bulletin(request):
             b.location = form.cleaned_data['location']
             b.description = form.cleaned_data['description']
             b.author = request.user
-
-						#encryption handled here
-            if(form.cleaned_data['is_encrypted']):
+            #encryption handled here
+            if not form.cleaned_data['is_public']:
                 b.is_encrypted = True
                 pub_key = request.user.profile.public_key
                 title = str(form.cleaned_data['title'])
@@ -159,7 +163,9 @@ def create_bulletin(request):
                 b.is_public = False                                                                                                         
                 b.is_searchable = False
 	    #file upload
-            b.docfile = request.FILES['docfile']
+            if request.FILES.get('docfile', None):
+                b.docfile = request.FILES['docfile']
+ 
             b.save()
         else:
             return HttpResponseRedirect('/logout')
@@ -189,11 +195,9 @@ def request_bulletin(request, bulletin_id):
 @login_required
 def detail_bulletin(request, bulletin_id):
     bulletin = get_object_or_404(Bulletin, pk=bulletin_id)
-
     #return render(request, 'secure_witness/detail_bulletin.html', {'bulletin': bulletin, 'user':request.user})
-
     #Decrypt if user is author or has permissions to view
-    if bulletin.is_encrypted and request.user == bulletin.author:
+    if not bulletin.is_public and request.user == bulletin.author and request.user.profile.private_key != u'':
         temp_b = bulletin
         private_key_loc = request.user.profile.private_key
         temp_b.title = decrypt_RSA(private_key_loc, str(bulletin.title))
