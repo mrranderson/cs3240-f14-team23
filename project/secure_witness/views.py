@@ -294,7 +294,7 @@ def edit_bulletin(request, bulletin_id):
             return HttpResponseRedirect('/logout')
         return HttpResponseRedirect('/')
     else:
-        form = BulletinForm(initial={'title': bulletin.title, 'description':bulletin.description, 'location':bulletin.location, 'is_public':bulletin.is_public, 'is_searchable':bulletin.is_searchable})
+        form = BulletinForm(initial={'title': bulletin.title, 'description':bulletin.description, 'location':bulletin.location, 'is_public':bulletin.is_public, 'is_searchable':bulletin.is_searchable, 'folder':bulletin.folder})
     return render(request, 'secure_witness/edit_bulletin.html', {'bulletin': bulletin, 'form': form})
 
 @login_required
