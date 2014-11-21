@@ -141,7 +141,7 @@ def create_bulletin(request):
             b.location = form.cleaned_data['location']
             b.description = form.cleaned_data['description']
             b.author = request.user
-
+            b.folder = form.cleaned_data['folder']
             #encryption handled here
             if not form.cleaned_data['is_public']:
                 b.folder = form.cleaned_data['folder']
@@ -262,6 +262,7 @@ def edit_bulletin(request, bulletin_id):
             bulletin.title = form.cleaned_data['title']
             bulletin.location = form.cleaned_data['location']
             bulletin.description = form.cleaned_data['description']
+            bulletin.folder = form.cleaned_data['folder']
             if(form.cleaned_data['is_public']):
                 bulletin.is_public = True
             else:

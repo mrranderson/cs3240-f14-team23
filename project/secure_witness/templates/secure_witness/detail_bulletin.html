@@ -18,11 +18,14 @@ Location: Encrypted Data<br>
 <h2>Author: {{ bulletin.author }}</h2>
 
 <h3>Date created: {{bulletin.date_created}} <br>
-Date modified: {{bulletin.date_modified}}
-Location: {{bulletin.location}}
+Date modified: {{bulletin.date_modified}} <br>
+Location: {{bulletin.location}}<br>
 {%if bulletin.folder %}
 Parent Folder: <a href="{% url 'detail_folder' bulletin.folder.id %}">{{bulletin.folder.title}}</a>
+{%else %}
+No parent folder.
 {%endif %}
+<br>
 
 
 <p>Description: <br>
