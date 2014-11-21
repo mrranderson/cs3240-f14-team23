@@ -8,6 +8,12 @@ class UserProfile(models.Model):
 
 User.profile = property(lambda u: UserProfile.objects.get_or_create(user=u)[0])
 
+class Folder(models.Model):
+    title = models.CharField(max_length=200)
+    def __unicode__(self):
+        return self.title
+    parent_folder = models.ForeignKey('self', null=True, on_delete=models.SET_NULL)
+
 class Bulletin(models.Model):
 	title = models.CharField(max_length=200)
 	date_created = models.DateTimeField(auto_now_add=True)
@@ -22,6 +28,7 @@ class Bulletin(models.Model):
 	is_searchable = models.BooleanField(default=False)
 	#file upload
         docfile = models.FileField(upload_to='documents', blank=True, null=True)
+	folder = models.ForeignKey(Folder, null=True)
 
         def filename(self):
         	return os.path.basename(self.docfile.name)

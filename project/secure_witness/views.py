@@ -5,9 +5,9 @@ from django.core.urlresolvers import reverse
 from django.views import generic
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
-from forms import UserForm, BasicSearchForm, BulletinForm
+from forms import UserForm, BasicSearchForm, BulletinForm, FolderForm
 from django.contrib.auth import login, authenticate, logout
-from secure_witness.models import Bulletin, Document, Notification, Follow
+from secure_witness.models import Bulletin, Document, Notification, Follow, Folder
 from django.contrib.auth.models import User
 from Crypto.PublicKey import RSA
 #from Crypto.Cipher import PKCS1_v1_5
@@ -34,12 +34,12 @@ def decrypt_RSA(private_key_loc, package):
   param: package String to be decrypted
   return decrypted string
   '''
-  key = open(private_key_loc, "r").read()
-  rsakey = RSA.importKey(key)
-  rsakey = PKCS1_OAEP.new(rsakey)
-  #rsakey = PKCS1_v1_5.new(rsakey)
-  decrypted = rsakey.decrypt(b64decode(package))
-  return decrypted
+  #key = open(private_key_loc, "r").read()
+  #rsakey = RSA.importKey(key)
+  #rsakey = PKCS1_OAEP.new(rsakey)
+  #rsakey = PKCS1_v1_5.new(rsakey) #the original comment
+  #decrypted = rsakey.decrypt(b64decode(package))
+  #return decrypted
 
 def generate_RSA(bits=2048):
   '''
@@ -72,6 +72,7 @@ def IndexView(request):
         inbox_str = 'Inbox'
         
     your_bulletins = Bulletin.objects.filter(author=request.user)
+    folder_list = Folder.objects.all()
 
     for b in your_bulletins:
         if request.user.profile.private_key != u'':
@@ -80,7 +81,7 @@ def IndexView(request):
     pub_bulletins = Bulletin.objects.filter(is_public=True)
     fol_bulletins = Follow.objects.filter(owner=request.user)
     
-    return render(request, 'secure_witness/index.html', {'bulletin_list': bulletin_list, 'inbox_str': inbox_str, 'your_bulletins': your_bulletins, 'pub_bulletins': pub_bulletins, 'fol_bulletins': fol_bulletins}) 
+    return render(request, 'secure_witness/index.html', {'bulletin_list': bulletin_list, 'inbox_str': inbox_str, 'your_bulletins': your_bulletins, 'pub_bulletins': pub_bulletins, 'fol_bulletins': fol_bulletins, 'folder_list':folder_list}) 
 
 @login_required
 def basic_search(request):
@@ -140,8 +141,10 @@ def create_bulletin(request):
             b.location = form.cleaned_data['location']
             b.description = form.cleaned_data['description']
             b.author = request.user
+
             #encryption handled here
             if not form.cleaned_data['is_public']:
+                b.folder = form.cleaned_data['folder']
                 b.is_encrypted = True
                 pub_key = request.user.profile.public_key
                 title = str(form.cleaned_data['title'])
@@ -165,7 +168,6 @@ def create_bulletin(request):
 	    #file upload
             if request.FILES.get('docfile', None):
                 b.docfile = request.FILES['docfile']
- 
             b.save()
         else:
             return HttpResponseRedirect('/logout')
@@ -203,7 +205,7 @@ def detail_bulletin(request, bulletin_id):
         temp_b.title = decrypt_RSA(private_key_loc, str(bulletin.title))
         temp_b.description = decrypt_RSA(private_key_loc, str(bulletin.description))
         temp_b.location = decrypt_RSA(private_key_loc, str(bulletin.location))
-	temp_b.docfile = bulletin.docfile
+	#temp_b.docfile = bulletin.docfile
         return render(request, 'secure_witness/detail_bulletin.html', {'bulletin': temp_b})
 
     return render(request, 'secure_witness/detail_bulletin.html', {'bulletin': bulletin})
@@ -296,7 +298,7 @@ def edit_bulletin(request, bulletin_id):
             return HttpResponseRedirect('/logout')
         return HttpResponseRedirect('/')
     else:
-        form = BulletinForm(initial={'title': bulletin.title, 'description':bulletin.description, 'location':bulletin.location, 'is_public':bulletin.is_public, 'is_searchable':bulletin.is_searchable})
+        form = BulletinForm(initial={'title': bulletin.title, 'description':bulletin.description, 'location':bulletin.location, 'is_public':bulletin.is_public, 'is_searchable':bulletin.is_searchable, 'folder':bulletin.folder})
     return render(request, 'secure_witness/edit_bulletin.html', {'bulletin': bulletin, 'form': form})
 
 @login_required
@@ -340,4 +342,40 @@ def reject_notification(request, notification_id):
         notification.delete()
         return HttpResponseRedirect('/inbox')
 
+def create_folder(request):
+    if request.method == "POST":
+        form = FolderForm(request.POST)
+        if form.is_valid():
+            f = Folder()
+            f.title = form.cleaned_data['title']
+            f.parent_folder = form.cleaned_data['parent_folder']
+            f.save()
+        return HttpResponseRedirect('/')
+    else:
+        form = FolderForm()
+    return render(request, 'secure_witness/create_folder.html', {'form': form})
+
+def detail_folder(request, folder_id):
+    f = get_object_or_404(Folder, pk=folder_id)
+    bulletin_list = Bulletin.objects.filter(folder = f)
+    subfolder_list = Folder.objects.filter(parent_folder = f)
+    return render(request, 'secure_witness/detail_folder.html', {'folder': f, 'subfolder_list': subfolder_list, 'bulletin_list': bulletin_list})
+
+def delete_folder(request, folder_id):
+    f = get_object_or_404(Folder, pk=folder_id)
+    f.delete()
+    return HttpResponseRedirect('/')
+
+def edit_folder(request, folder_id):
+    f = get_object_or_404(Folder, pk=folder_id) 
+    if request.method == "POST":
+        form = FolderForm(request.POST)
+        if form.is_valid():
+            f.title = form.cleaned_data['title']
+            f.parent_folder = form.cleaned_data['parent_folder']
+            f.save()
+        return HttpResponseRedirect('/')
+    else:
+        form = FolderForm(initial={'title':f.title})
+    return render(request, 'secure_witness/edit_folder.html', {'folder': f, 'form': form})
 # Create your views here.

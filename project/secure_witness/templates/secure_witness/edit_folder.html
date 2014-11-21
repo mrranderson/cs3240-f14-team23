@@ -1,8 +1,8 @@
 {% block content %}
 <div style="position: absolute;top: 20%;left: 50%;margin-top: -100px;margin-left: -180px;width: 360px;height: 200px; padding-left: 25px; padding-right: 10px" >
-<h3>Edit Bulletin</h3>
+<h3>Edit Folder</h3>
 
-<form method="post" action="{% url 'edit_bulletin' bulletin.id %}">
+<form method="post" action="{% url 'edit_folder' folder.id %}">
 {% csrf_token %}
     <table>
 <tr>
@@ -10,24 +10,9 @@
     <td>{{ form.title }}</td>
 </tr>
 <tr>
-    <td>{{ form.description.label_tag }}</td>
-    <td>{{ form.description }}</td>
+    <td>{{ form.parent_folder.label_tag }}</td>
+    <td>{{ form.parent_folder }}</td>
 </tr>
-<tr>
-	<td>{{ form.folder.label_tag}}</td>
-	<td>{{ form.folder }} </td>
-</tr>
-<tr>
-	<td>{{ form.location.label_tag}}</td>
-	<td>{{ form.location }} </td>
-</tr>
-<tr>
-	<td>{{ form.is_public.label_tag}}</td>
-	<td>{{ form.is_public }} </td>
-</tr>
-<tr>
-	<td>{{ form.is_searchable.label_tag}}</td>
-	<td>{{ form.is_searchable }} </td>
 </table>
 
 <!-- NEED TO IMPLEMENT ERROR CHECKING -->
