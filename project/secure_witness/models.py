@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+#from django.contrib.postgres.fields import ArrayField
+ 
 class UserProfile(models.Model):
 	user = models.ForeignKey(User, unique=True)
 	public_key = models.CharField(max_length=500, default="")
@@ -26,12 +27,14 @@ class Bulletin(models.Model):
 	is_encrypted = models.BooleanField(default=False)
 	is_public = models.BooleanField(default=False)
 	is_searchable = models.BooleanField(default=False)
-	#file upload
-        docfile = models.FileField(upload_to='documents', blank=True, null=True)
 	folder = models.ForeignKey(Folder, null=True)
+	#file upload
+	docfile = models.FileField(upload_to='documents', blank=True, null=True)
+	doc_key = models.CharField(max_length=200, default="")
+	#readers = ArrayField(models.ForeignKey(Permission))
 
-        def filename(self):
-        	return os.path.basename(self.docfile.name)
+	def filename(self):
+		return os.path.basename(self.docfile.name)
 
 	def __unicode__(self):
 		return self.title
@@ -60,3 +63,15 @@ class Notification(models.Model):
 class Follow(models.Model):
     owner = models.ForeignKey(User)
     bulletin = models.ForeignKey(Bulletin)
+
+class Permission(models.Model):
+  reader = models.ForeignKey(User)
+  title = models.CharField(max_length=200)
+  date_created = models.DateTimeField(auto_now_add=True)
+  date_modified = models.DateTimeField(auto_now=True)
+  #Author's user account
+  #author = models.ForeignKey(User)
+  location = models.CharField(max_length=200)
+  description = models.CharField(max_length=200)
+  docfile = models.FileField(upload_to='documents', blank=True, null=True)
+  doc_key = models.CharField(max_length=200, default="")

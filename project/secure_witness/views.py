@@ -11,7 +11,7 @@ from secure_witness.models import Bulletin, Document, Notification, Follow, Fold
 from django.contrib.auth.models import User
 from Crypto.PublicKey import RSA
 #from Crypto.Cipher import PKCS1_v1_5
-from Crypto.Cipher import PKCS1_OAEP
+from Crypto.Cipher import PKCS1_OAEP, AES
 from base64 import b64decode
 from models import UserProfile
 
@@ -34,12 +34,12 @@ def decrypt_RSA(private_key_loc, package):
   param: package String to be decrypted
   return decrypted string
   '''
-  #key = open(private_key_loc, "r").read()
-  #rsakey = RSA.importKey(key)
-  #rsakey = PKCS1_OAEP.new(rsakey)
+  key = open(private_key_loc, "r").read()
+  rsakey = RSA.importKey(key)
+  rsakey = PKCS1_OAEP.new(rsakey)
   #rsakey = PKCS1_v1_5.new(rsakey) #the original comment
-  #decrypted = rsakey.decrypt(b64decode(package))
-  #return decrypted
+  decrypted = rsakey.decrypt(b64decode(package))
+  return decrypted
 
 def generate_RSA(bits=2048):
   '''
@@ -205,7 +205,7 @@ def detail_bulletin(request, bulletin_id):
         temp_b.title = decrypt_RSA(private_key_loc, str(bulletin.title))
         temp_b.description = decrypt_RSA(private_key_loc, str(bulletin.description))
         temp_b.location = decrypt_RSA(private_key_loc, str(bulletin.location))
-	#temp_b.docfile = bulletin.docfile
+        temp_b.docfile = bulletin.docfile
         return render(request, 'secure_witness/detail_bulletin.html', {'bulletin': temp_b})
 
     return render(request, 'secure_witness/detail_bulletin.html', {'bulletin': bulletin})
