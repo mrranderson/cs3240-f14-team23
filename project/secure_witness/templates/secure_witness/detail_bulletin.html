@@ -30,6 +30,10 @@ No parent folder.
 {%endif %}
 <br>
 
+{%if bulletin.docfile %}
+Files: <a href="{{ bulletin.docfile.url }}">{{ bulletin.docfile.name }}</a>
+{%endif %}
+
 
 <p>Description: <br>
 {{bulletin.description}}</p>
