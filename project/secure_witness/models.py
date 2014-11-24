@@ -20,7 +20,8 @@ class Bulletin(models.Model):
 	date_created = models.DateTimeField(auto_now_add=True)
 	date_modified = models.DateTimeField(auto_now=True)
 	#Author's user account
-	author = models.ForeignKey(User)
+	author = models.ForeignKey(User, related_name="author")
+#	reader = models.ForeignKey(User, related_name="reader", default=None)
 	location = models.CharField(max_length=200)
 	description = models.CharField(max_length=200)
     	#display permissions
@@ -63,15 +64,3 @@ class Notification(models.Model):
 class Follow(models.Model):
     owner = models.ForeignKey(User)
     bulletin = models.ForeignKey(Bulletin)
-
-class Permission(models.Model):
-  reader = models.ForeignKey(User)
-  title = models.CharField(max_length=200)
-  date_created = models.DateTimeField(auto_now_add=True)
-  date_modified = models.DateTimeField(auto_now=True)
-  #Author's user account
-  #author = models.ForeignKey(User)
-  location = models.CharField(max_length=200)
-  description = models.CharField(max_length=200)
-  docfile = models.FileField(upload_to='documents', blank=True, null=True)
-  doc_key = models.CharField(max_length=200, default="")
