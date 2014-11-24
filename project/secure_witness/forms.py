@@ -35,3 +35,13 @@ class BulletinForm(forms.Form):
 class FolderForm(forms.Form):
     title = forms.CharField(label='Title')
     parent_folder = forms.ModelChoiceField(queryset=Folder.objects.all(), label='Parent Folder', empty_label='No parent folder.', required=False)
+    
+class UserEditForm(forms.Form):
+    current_password = forms.CharField(required=False, label='Current Password')
+    new_password = forms.CharField(required=False, label='New Password')
+    confirm_new_password = forms.CharField(required=False, label='Confirm New Password')
+    public_key_loc = forms.CharField(required=False, max_length=200, label='Change Public Key Location')
+    private_key_loc = forms.CharField(required=False, max_length=200, label='Change Private Key Location')
+
+class UserDeleteForm(forms.Form):
+    keep_data = forms.BooleanField(required=False, label='I confirm I would like to delete my Account')

@@ -1,0 +1,16 @@
+{%block content%}
+<h3>Confirm that you want to delete your account: {{user}} </h3>
+Note that this is a permanent action and cannot be undone.  All of your user data will be deleted<br>
+and is unrecoverable. If you are sure you'd like to delete your account, and all of your bulletins<br>
+then click the button below.  There is no additional verification.<br><br>
+
+<form method="post" action="/delete/">
+	{% csrf_token %}
+	<b>{{form.keep_data.label_tag}}</b>
+	{{form.keep_data}}<br>
+	{%if message%}
+	<font color="red">{{message}}</font>
+	{%endif%}<br><br>
+	<a style="text-decoration:none" href = "/"><input type="button" value = "Cancel"/> </a><input type="submit" value="Delete Account" />
+</form>
+{%endblock%}

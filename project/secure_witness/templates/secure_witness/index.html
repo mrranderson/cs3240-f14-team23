@@ -1,6 +1,12 @@
-<a href="/search">Search Bulletins</a> <br><br>
+<h3>Welcome to Secure Witness: {{user.username}}</h3>
+<ul>
+	<li><a href="/search">Search Bulletins</a></li>
+	<li><a href="/inbox">{{inbox_str}}</a></li>
+	<li><a href="/manage">Account Management</a></li>
+	<li><a href="/logout">Logout</a></li>
+</ul>
 
-<a href="/create_bulletin">Create New Bulletin</a>
+<h3>List of All Bulletins (debugging only)</h3>
 {% block content %}
 {% if bulletin_list %}
 	<h3>List of All Bulletins:</h3>
@@ -27,9 +33,10 @@
 {%else%}
 	<p>You have created no bulletins</p>
 {%endif%}
+<a href="/create_bulletin">Create New Bulletin</a>
 
+<h3>List of All Folders:</h3>
 {%if folder_list%}
-	<h3>List of All Folders:</h3>
     <ul>
     {%for folder in folder_list%}
       <li><a href="{% url 'detail_folder' folder.id %}">{{folder.title}}</a></li>
@@ -66,10 +73,7 @@
 	<p>You are following no bulletins</p>
 {%endif%}
 
-<a href="/inbox">{{inbox_str}}</a>
-
 {% endblock %}
-<br><br>
-<a href="/logout">Logout</a>
+
 
 
