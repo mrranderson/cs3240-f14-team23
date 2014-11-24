@@ -249,7 +249,7 @@ def create_bulletin(request):
             if request.FILES.get('docfile', None):
                 b.docfile = request.FILES['docfile']
             b.save()
-            if b.is_encrypted:
+            if b.is_encrypted and b.docfile:
                 directory = os.path.dirname(__file__)
                 directory = os.path.join(directory, "../project/")
                 filename = os.path.join(directory, b.docfile.url[1:])
