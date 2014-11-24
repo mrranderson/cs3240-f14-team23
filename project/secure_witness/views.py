@@ -287,7 +287,8 @@ def detail_bulletin(request, bulletin_id):
     if bulletin.is_encrypted and request.user == bulletin.author and request.user.profile.private_key != u'':
         temp_b = bulletin
         private_key_loc = request.user.profile.private_key
-        temp_b.title = decrypt_RSA(private_key_loc, str(bulletin.title))
+        if not bulletin.is_searchable:
+            temp_b.title = decrypt_RSA(private_key_loc, str(bulletin.title))
         temp_b.description = decrypt_RSA(private_key_loc, str(bulletin.description))
         temp_b.location = decrypt_RSA(private_key_loc, str(bulletin.location))
         aes_key = decrypt_RSA(private_key_loc, str(bulletin.doc_key))
@@ -423,16 +424,17 @@ def accept_notification(request, notification_id):
     a_key = request.user.profile.private_key
     r_key = notification.sender.profile.public_key
     new_b = Bulletin()
-    new_b.title = encrypt_RSA(r_key, "Requested: "+decrypt_RSA(a_key, b.title))
+    #new_b.title = encrypt_RSA(r_key, "Requested: "+decrypt_RSA(a_key, b.title))
+    new_b.title = encrypt_RSA(r_key, "Requested: "+str(b.title))
     new_b.date_created = b.date_created
     new_b.date_modified = b.date_modified
     new_b.author = notification.sender
 #    new_b.reader = notification.sender
     new_b.location = encrypt_RSA(r_key, decrypt_RSA(a_key, b.location))
     new_b.description = encrypt_RSA(r_key, decrypt_RSA(a_key, b.description))
-    new_b.is_encrypted = b.is_encrypted
-    new_b.is_public = b.is_public 
-    new_b.is_searchable = b.is_searchable
+    new_b.is_encrypted = True
+    new_b.is_public = False 
+    new_b.is_searchable = False
     new_b.folder = b.folder
     new_b.docfile = b.docfile
     new_b.doc_key = encrypt_RSA(r_key, decrypt_RSA(a_key, b.doc_key))
