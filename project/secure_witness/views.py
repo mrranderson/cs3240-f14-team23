@@ -156,11 +156,14 @@ def IndexView(request):
 @login_required
 def basic_search(request):
     if request.method == "POST":
-        #
-        #  This is where you put the code to process the search
-        #  Also need to figure out a better way to search by keyword
-        #
-        return HttpResponseRedirect('/')
+        form = BasicSearchForm(request.POST)
+        if form.is_valid():
+            terms = form.cleaned_data['keywords']
+            term_list = terms.split(' ')
+            bul_list = Bulletin.objects.filter(title__in=term_list)
+            return render(request, 'secure_witness/search_results.html', {'bulletins': bul_list})
+        else:
+            return HttpResponseRedirect('/logout')
     else:
         form = BasicSearchForm()
     return render(request, 'secure_witness/search.html', {'form': form}) 
@@ -247,7 +250,7 @@ def create_bulletin(request):
                 filename = os.path.join(directory, b.docfile.url[1:])
                 encrypt_file(aes_key, filename, filename) 
         else:
-            return HttpResponseRedirect('/logout')
+            return HttpResponseRedirect('/create_bulletin')
         return HttpResponseRedirect('/')
     else:
         form = BulletinForm()
@@ -501,6 +504,9 @@ def delete_user(request):
                 u = us.user
                 u.delete()
                 us.delete()
+                
+                #ADD CODE TO DELETE ASSOCIATED BULLETINS
+                
                 return HttpResponseRedirect('/')
         else:
             return HttpResponseRedirect('/')

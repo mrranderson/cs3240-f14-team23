@@ -1,0 +1,13 @@
+<h3>Search Results</h3>
+{% block content %}
+{% if bulletins %}
+    <ul>
+    {% for bulletin in bulletins %}
+      {{bulletin.title}}
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No bulletins matched your search results</p>
+{% endif %}
+<br><br><a href='/search'>Search Again</a><br><a href='/'>Home</a>
+{%endblock%}

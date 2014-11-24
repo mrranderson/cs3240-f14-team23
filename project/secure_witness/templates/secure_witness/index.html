@@ -9,7 +9,6 @@
 <h3>List of All Bulletins (debugging only)</h3>
 {% block content %}
 {% if bulletin_list %}
-	<h3>List of All Bulletins:</h3>
     <ul>
     {% for bulletin in bulletin_list %}
       {% if bulletin.is_encrypted and bulletin.author != user %}
