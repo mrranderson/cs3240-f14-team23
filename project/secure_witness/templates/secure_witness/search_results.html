@@ -3,7 +3,9 @@
 {% if bulletins %}
     <ul>
     {% for bulletin in bulletins %}
-      <a href="{% url 'detail_bulletin' bulletin.id %}">{{bulletin.title}}</a>
+		{%if bulletin.is_searchable%}
+      		<li><a href="{% url 'detail_bulletin' bulletin.id %}">{{bulletin.title}}</a></li>
+		{%endif%}
     {% endfor %}
     </ul>
 {% else %}

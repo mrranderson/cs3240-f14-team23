@@ -160,8 +160,11 @@ def basic_search(request):
         if form.is_valid():
             terms = form.cleaned_data['keywords']
             term_list = terms.split(' ')
-            bul_list = Bulletin.objects.filter(title__in=term_list)
-            return render(request, 'secure_witness/search_results.html', {'bulletins': bul_list})
+            bul_list = []
+            for word in term_list:
+                bul_list.extend(Bulletin.objects.filter(title__contains=word))
+            bulletins = set(bul_list)
+            return render(request, 'secure_witness/search_results.html', {'bulletins': bulletins})
         else:
             return HttpResponseRedirect('/logout')
     else:
