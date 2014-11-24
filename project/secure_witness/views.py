@@ -284,7 +284,8 @@ def detail_bulletin(request, bulletin_id):
     if bulletin.is_encrypted and request.user == bulletin.author and request.user.profile.private_key != u'':
         temp_b = bulletin
         private_key_loc = request.user.profile.private_key
-        temp_b.title = decrypt_RSA(private_key_loc, str(bulletin.title))
+        if not bulletin.is_searchable:
+            temp_b.title = decrypt_RSA(private_key_loc, str(bulletin.title))
         temp_b.description = decrypt_RSA(private_key_loc, str(bulletin.description))
         temp_b.location = decrypt_RSA(private_key_loc, str(bulletin.location))
         aes_key = decrypt_RSA(private_key_loc, str(bulletin.doc_key))
