@@ -151,7 +151,7 @@ def IndexView(request):
     pub_bulletins = Bulletin.objects.filter(is_public=True)
     fol_bulletins = Follow.objects.filter(owner=request.user)
     
-    return render(request, 'secure_witness/index.html', {'bulletin_list': bulletin_list, 'inbox_str': inbox_str, 'your_bulletins': your_bulletins, 'pub_bulletins': pub_bulletins, 'fol_bulletins': fol_bulletins, 'folder_list':folder_list}) 
+    return render(request, 'secure_witness/index.html', {'bulletin_list': bulletin_list, 'inbox_str': inbox_str, 'your_bulletins': your_bulletins, 'pub_bulletins': pub_bulletins, 'fol_bulletins': fol_bulletins, 'folder_list':folder_list, 'user':request.user}) 
 
 @login_required
 def basic_search(request):
