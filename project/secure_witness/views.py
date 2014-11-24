@@ -131,7 +131,7 @@ def IndexView(request):
     bulletin_list = Bulletin.objects.all()
 
     for b in bulletin_list:
-        if b.author == request.user and request.user.profile.private_key != u'':
+        if b.author == request.user and request.user.profile.private_key != u'' and b.is_encrypted:
             b.title = decrypt_RSA(request.user.profile.private_key, str(b.title))
 
     current_user = request.user
@@ -145,7 +145,7 @@ def IndexView(request):
     folder_list = Folder.objects.all()
 
     for b in your_bulletins:
-        if request.user.profile.private_key != u'':
+        if request.user.profile.private_key != u'' and b.is_encrypted:
             b.title = decrypt_RSA(request.user.profile.private_key, str(b.title))
 
     pub_bulletins = Bulletin.objects.filter(is_public=True)
@@ -415,7 +415,7 @@ def accept_notification(request, notification_id):
     a_key = request.user.profile.private_key
     r_key = notification.sender.profile.public_key
     new_b = Bulletin()
-    new_b.title = encrypt_RSA(r_key, decrypt_RSA(a_key, b.title))
+    new_b.title = encrypt_RSA(r_key, "Requested: "+decrypt_RSA(a_key, b.title))
     new_b.date_created = b.date_created
     new_b.date_modified = b.date_modified
     new_b.author = notification.sender
@@ -429,6 +429,7 @@ def accept_notification(request, notification_id):
     new_b.docfile = b.docfile
     new_b.doc_key = encrypt_RSA(r_key, decrypt_RSA(a_key, b.doc_key))
     new_b.save()
+    notification.delete()
     return HttpResponseRedirect('/inbox')
 
 @login_required
