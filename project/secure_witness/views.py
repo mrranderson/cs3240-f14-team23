@@ -131,7 +131,7 @@ def IndexView(request):
     bulletin_list = Bulletin.objects.all()
 
     for b in bulletin_list:
-        if b.author == request.user and request.user.profile.private_key != u'' and b.is_encrypted:
+        if b.author == request.user and request.user.profile.private_key != u'' and b.is_encrypted and not b.is_searchable:
             b.title = decrypt_RSA(request.user.profile.private_key, str(b.title))
 
     current_user = request.user
@@ -145,7 +145,7 @@ def IndexView(request):
     folder_list = Folder.objects.all()
 
     for b in your_bulletins:
-        if request.user.profile.private_key != u'' and b.is_encrypted:
+        if request.user.profile.private_key != u'' and b.is_encrypted and not b.is_searchable:
             b.title = decrypt_RSA(request.user.profile.private_key, str(b.title))
 
     pub_bulletins = Bulletin.objects.filter(is_public=True)
@@ -221,7 +221,6 @@ def create_bulletin(request):
                 location = str(form.cleaned_data['location'])
                 description = str(form.cleaned_data['description'])
                 #author = str(request.user)
-                b.title = encrypt_RSA(pub_key, title)
                 b.location = encrypt_RSA(pub_key, location)
                 b.description = encrypt_RSA(pub_key, description)
                 aes_key = rand_key()
@@ -237,6 +236,9 @@ def create_bulletin(request):
             else:
                 b.is_public = False                                                                                                         
                 b.is_searchable = False
+
+            if not b.is_searchable:
+                b.title = encrypt_RSA(pub_key, title)
 	    #file upload
             if request.FILES.get('docfile', None):
                 b.docfile = request.FILES['docfile']
@@ -247,7 +249,7 @@ def create_bulletin(request):
                 filename = os.path.join(directory, b.docfile.url[1:])
                 encrypt_file(aes_key, filename, filename) 
         else:
-            return HttpResponseRedirect('/logout')
+            return HttpResponseRedirect('/create_bulletin')
         return HttpResponseRedirect('/')
     else:
         form = BulletinForm()
