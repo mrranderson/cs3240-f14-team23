@@ -11,7 +11,7 @@
 {% if bulletin_list %}
     <ul>
     {% for bulletin in bulletin_list %}
-      {% if bulletin.is_encrypted and bulletin.author != user %}
+      {% if bulletin.is_encrypted and bulletin.author != user and not bulletin.is_searchable %}
         <li>Bulletin {{forloop.counter}}: <a href="{% url 'detail_bulletin' bulletin.id %}">{{ "Encrypted" }}</a></li>
       {% else %}
         <li>Bulletin {{forloop.counter}}: <a href="{% url 'detail_bulletin' bulletin.id %}">{{ bulletin.title }}</a></li>
@@ -50,7 +50,7 @@
 {% if pub_bulletins %}
 	<ul>
 	{%for bulletin in pub_bulletins %}
-      {% if bulletin.is_encrypted and bulletin.author != user %}
+      {% if bulletin.is_encrypted and bulletin.author != user and not bulletin.is_searchable%}
         <li>Bulletin {{forloop.counter}}: <a href="{% url 'detail_bulletin' bulletin.id %}">{{ "Encrypted" }}</a></li>
       {% else %}
         <li>Bulletin {{forloop.counter}}: <a href="{% url 'detail_bulletin' bulletin.id %}">{{ bulletin.title }}</a></li>
