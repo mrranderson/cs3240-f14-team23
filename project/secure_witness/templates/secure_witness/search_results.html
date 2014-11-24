@@ -3,7 +3,7 @@
 {% if bulletins %}
     <ul>
     {% for bulletin in bulletins %}
-      {{bulletin.title}}
+      <a href="{% url 'detail_bulletin' bulletin.id %}">{{bulletin.title}}</a>
     {% endfor %}
     </ul>
 {% else %}
