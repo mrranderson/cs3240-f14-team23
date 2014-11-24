@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 from django.views import generic
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
-from forms import UserForm, BasicSearchForm, BulletinForm, FolderForm
+from forms import UserForm, BasicSearchForm, BulletinForm, FolderForm, UserEditForm, UserDeleteForm
 from django.contrib.auth import login, authenticate, logout
 from secure_witness.models import Bulletin, Document, Notification, Follow, Folder
 from django.contrib.auth.models import User
@@ -342,7 +342,66 @@ def reject_notification(request, notification_id):
         n.save()
         notification.delete()
         return HttpResponseRedirect('/inbox')
+        
+@login_required
+def manage_user(request):
+    updated_password = None
+    updated_ssh = None
+    form = UserEditForm()
+    if request.method == "POST":
+        form = UserEditForm(request.POST)
+        if form.is_valid():
+            if form.cleaned_data['current_password'] != '' and form.cleaned_data['new_password'] != '' and form.cleaned_data['confirm_new_password'] != '':
+                if authenticate(username=request.user.username, password = form.cleaned_data['current_password']):
+                    if form.cleaned_data['new_password'] == form.cleaned_data['confirm_new_password']:
+                        us = UserProfile.objects.filter(user=request.user)[0]
+                        u = us.user
+                        u.set_password(form.cleaned_data['new_password'])
+                        u.save()
+                        us.save()
+                        updated_password = 'Your password has been updated'
+                    else:
+                        updated_password = 'Your new passwords did not match'
+                else:
+                    updated_password = 'You entered your current password incorrectly'
+            else:
+                updated_password = 'You need to enter all of the fields to updated your password'
+            if form.cleaned_data['private_key_loc'] != '' and form.cleaned_data['public_key_loc'] != '':
+                us = UserProfile.objects.filter(user=request.user)[0]
+                us.public_key = form.cleaned_data['public_key_loc']
+                us.private_key = form.cleaned_data['private_key_loc']
+                us.save()
+                updated_ssh = 'Your ssh keys have been updated'
+            else:
+                updated_ssh = 'You need to enter all of the fields to update your SSH keys'
+        else:
+            return HttpResponseRedirect('/manage')
+        return render(request, 'secure_witness/account_manage.html', {'form': form, 'user': request.user, 'updated_password':updated_password, 'updated_ssh':updated_ssh})
+    else:
+        return render(request, 'secure_witness/account_manage.html', {'form': form, 'user': request.user, 'updated_password':updated_password, 'updated_ssh':updated_ssh})
 
+@login_required
+def delete_user(request):
+    message = None
+    if request.method == "POST":
+        form = UserDeleteForm(request.POST)
+        if form.is_valid():
+            if not form.cleaned_data['keep_data']:
+                message = 'You must confirm'
+                return render(request, 'secure_witness/delete_user.html', {'form': form, 'user': request.user, 'message':message})
+            else:
+                us = UserProfile.objects.filter(user=request.user)[0]
+                u = us.user
+                u.delete()
+                us.delete()
+                return HttpResponseRedirect('/')
+        else:
+            return HttpResponseRedirect('/')
+    else:
+        form = UserDeleteForm()
+    return render(request, 'secure_witness/delete_user.html', {'form': form, 'user': request.user, 'message':message})
+    
+@login_required
 def create_folder(request):
     if request.method == "POST":
         form = FolderForm(request.POST)
@@ -356,17 +415,20 @@ def create_folder(request):
         form = FolderForm()
     return render(request, 'secure_witness/create_folder.html', {'form': form})
 
+@login_required
 def detail_folder(request, folder_id):
     f = get_object_or_404(Folder, pk=folder_id)
     bulletin_list = Bulletin.objects.filter(folder = f)
     subfolder_list = Folder.objects.filter(parent_folder = f)
     return render(request, 'secure_witness/detail_folder.html', {'folder': f, 'subfolder_list': subfolder_list, 'bulletin_list': bulletin_list})
 
+@login_required
 def delete_folder(request, folder_id):
     f = get_object_or_404(Folder, pk=folder_id)
     f.delete()
     return HttpResponseRedirect('/')
 
+@login_required
 def edit_folder(request, folder_id):
     f = get_object_or_404(Folder, pk=folder_id) 
     if request.method == "POST":

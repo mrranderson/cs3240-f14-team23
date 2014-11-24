@@ -29,4 +29,6 @@ urlpatterns = patterns('',
         url(r'^detail_folder/(?P<folder_id>\d+)/', views.detail_folder, name='detail_folder'),
         url(r'^delete_folder/(?P<folder_id>\d+)/', views.delete_folder, name='delete_folder'),
         url(r'^edit_folder/(?P<folder_id>\d+)/', views.edit_folder, name='edit_folder'),
+        url(r'^manage', views.manage_user, name='manage'),
+        url(r'^delete', views.delete_user, name='delete'),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
