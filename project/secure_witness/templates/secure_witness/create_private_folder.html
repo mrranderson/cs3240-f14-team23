@@ -1,0 +1,26 @@
+{% block content %}
+<div style="position: absolute;top: 20%;left: 50%;margin-top: -100px;margin-left: -180px;width: 360px;height: 200px; padding-left: 25px; padding-right: 10px" >
+<h3>Create A New Folder</h3>
+
+<form method="post" action="/create_private_folder/">
+{% csrf_token %}
+    <table>
+<tr>
+    <td>{{ form.title.label_tag }}</td>
+    <td>{{ form.title }}</td>
+</tr>
+<tr>
+    <td>{{ form.parent_folder.label_tag }}</td>
+    <td>{{ form.parent_folder }}</td>
+</tr>
+</table>
+
+<!-- NEED TO IMPLEMENT ERROR CHECKING -->
+
+<br>
+<input type="submit" value="Create Private Folder" />
+<a style="text-decoration:none" href = "/"><input type="button" value = "Cancel"/></a>
+</form>
+</div>
+
+{% endblock %}

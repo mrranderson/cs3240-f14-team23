@@ -34,7 +34,13 @@ class BulletinForm(forms.Form):
 
 class FolderForm(forms.Form):
     title = forms.CharField(label='Title')
-    parent_folder = forms.ModelChoiceField(queryset=Folder.objects.all(), label='Parent Folder', empty_label='No parent folder.', required=False)
+    #is_global = forms.BooleanField(required=False, label='Make Global?')
+    parent_folder = forms.ModelChoiceField(queryset=Folder.objects.filter(is_global=True), label='Parent Folder', empty_label='No parent folder.', required=False)
+
+class PrivateFolderForm(forms.Form):
+    title = forms.CharField(label='Title')
+    #is_global = forms.BooleanField(required=False, label='Make Global?')
+    parent_folder = forms.ModelChoiceField(queryset=Folder.objects.filter(is_global=False), label='Parent Folder', empty_label='No parent folder.', required=False)
     
 class UserEditForm(forms.Form):
     current_password = forms.CharField(required=False, label='Current Password')

@@ -14,6 +14,8 @@ class Folder(models.Model):
     def __unicode__(self):
         return self.title
     parent_folder = models.ForeignKey('self', null=True, on_delete=models.SET_NULL)
+    is_global = models.BooleanField(default=True)
+    owner = models.ForeignKey(User, null=True)
 
 class Bulletin(models.Model):
 	title = models.CharField(max_length=200)

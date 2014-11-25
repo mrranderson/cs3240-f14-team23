@@ -2,6 +2,12 @@
 <div style="position: absolute;top: 40%;left: 50%;margin-top: -100px;margin-left: -180px;width: 360px;height: 200px; padding-left: 25px; padding-right: 10px" >
 <h1>{{ folder.title }}</h1>
 
+<p>{{ folder.is_global }}</p>
+{% if folder.is_global == False %}
+<p>This is a private folder.</p>
+{% else %}
+<p>This is a public folder.</p>
+{% endif %}
 {% if not folder.parent_folder == None %}
 <h3>Parent folder: <a href="{% url 'detail_folder' folder.parent_folder.id %}">{{folder.parent_folder}}</a></h3>
 {% endif %}
@@ -29,7 +35,9 @@
 {% endif %}
 
 <a style="text-decoration:none" href="/"><input type="button" value="Back" /></a>
+{% if folder.is_global == False and folder.owner == user %}
 <a style="text-decoration:none" href="{% url 'edit_folder' folder.id %}"><input type="button" value="Edit" /></a>
 <a style="text-decoration:none" href="{% url 'delete_folder' folder.id %}"><input type="button" value="Delete" /></a>
+{% endif %}
 </div>
 {% endblock %}

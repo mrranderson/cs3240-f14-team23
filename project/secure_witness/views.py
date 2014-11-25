@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 from django.views import generic
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
-from forms import UserForm, BasicSearchForm, BulletinForm, FolderForm, UserEditForm, UserDeleteForm
+from forms import UserForm, BasicSearchForm, BulletinForm, FolderForm, UserEditForm, UserDeleteForm, PrivateFolderForm
 from django.contrib.auth import login, authenticate, logout
 from secure_witness.models import Bulletin, Document, Notification, Follow, Folder
 from django.contrib.auth.models import User
@@ -143,7 +143,8 @@ def IndexView(request):
         
     your_bulletins = Bulletin.objects.filter(author=request.user)
 
-    folder_list = Folder.objects.all()
+    folder_list = Folder.objects.filter(is_global=True)
+    my_folders = Folder.objects.filter(is_global=False)
 
     for b in your_bulletins:
         if request.user.profile.private_key != u'':
@@ -152,7 +153,7 @@ def IndexView(request):
     pub_bulletins = Bulletin.objects.filter(is_public=True)
     fol_bulletins = Follow.objects.filter(owner=request.user)
     
-    return render(request, 'secure_witness/index.html', {'bulletin_list': bulletin_list, 'inbox_str': inbox_str, 'your_bulletins': your_bulletins, 'pub_bulletins': pub_bulletins, 'fol_bulletins': fol_bulletins, 'folder_list':folder_list, 'user':request.user}) 
+    return render(request, 'secure_witness/index.html', {'bulletin_list': bulletin_list, 'inbox_str': inbox_str, 'your_bulletins': your_bulletins, 'pub_bulletins': pub_bulletins, 'fol_bulletins': fol_bulletins, 'folder_list':folder_list, 'user':request.user, 'my_folders':my_folders}) 
 
 @login_required
 def basic_search(request):
@@ -516,7 +517,7 @@ def create_folder(request):
             f = Folder()
             f.title = form.cleaned_data['title']
             f.parent_folder = form.cleaned_data['parent_folder']
-            f.is_global = form.cleaned_data['is_global']
+            f.is_global = True
             f.owner = request.user
             f.save()
         return HttpResponseRedirect('/')
@@ -524,12 +525,28 @@ def create_folder(request):
         form = FolderForm()
     return render(request, 'secure_witness/create_folder.html', {'form': form})
 
+def create_private_folder(request):
+    if request.method == "POST":
+        form = PrivateFolderForm(request.POST)
+        if form.is_valid():
+            f = Folder()
+            f.title = form.cleaned_data['title']
+            f.parent_folder = form.cleaned_data['parent_folder']
+            f.is_global = False
+            f.owner = request.user
+            f.save()
+        return HttpResponseRedirect('/')
+    else:
+        form = PrivateFolderForm()
+    return render(request, 'secure_witness/create_private_folder.html', {'form': form})
+
 @login_required
 def detail_folder(request, folder_id):
     f = get_object_or_404(Folder, pk=folder_id)
     bulletin_list = Bulletin.objects.filter(folder = f)
     subfolder_list = Folder.objects.filter(parent_folder = f)
-    return render(request, 'secure_witness/detail_folder.html', {'folder': f, 'subfolder_list': subfolder_list, 'bulletin_list': bulletin_list})
+    user = request.user
+    return render(request, 'secure_witness/detail_folder.html', {'folder': f, 'subfolder_list': subfolder_list, 'bulletin_list': bulletin_list, 'user':user})
 
 @login_required
 def delete_folder(request, folder_id):
@@ -541,13 +558,13 @@ def delete_folder(request, folder_id):
 def edit_folder(request, folder_id):
     f = get_object_or_404(Folder, pk=folder_id) 
     if request.method == "POST":
-        form = FolderForm(request.POST)
+        form = PrivateFolderForm(request.POST)
         if form.is_valid():
             f.title = form.cleaned_data['title']
             f.parent_folder = form.cleaned_data['parent_folder']
             f.save()
         return HttpResponseRedirect('/')
     else:
-        form = FolderForm(initial={'title':f.title})
+        form = PrivateFolderForm(initial={'title':f.title})
     return render(request, 'secure_witness/edit_folder.html', {'folder': f, 'form': form})
 # Create your views here.

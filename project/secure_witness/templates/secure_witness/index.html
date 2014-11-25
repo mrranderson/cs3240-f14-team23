@@ -35,7 +35,7 @@
 {%endif%}
 <a href="/create_bulletin">Create New Bulletin</a>
 
-<h3>List of All Folders:</h3>
+<h3>List of Global Folders:</h3>
 {%if folder_list%}
     <ul>
     {%for folder in folder_list%}
@@ -43,9 +43,21 @@
     {%endfor%}
     </ul>
 {%else%}
-    <p>No folders are available.</p>
+    <p>No global folders are available.</p>
 {%endif%}
-<a href="/create_folder">Create New Folder</a>
+<a href="/create_folder">Create New Global Folder</a>
+
+<h3>List of My Folders:</h3>
+{%if my_folders%}
+    <ul>
+    {%for folder in my_folders%}
+      <li><a href="{% url 'detail_folder' folder.id %}">{{folder.title}}</a></li>
+    {%endfor%}
+    </ul>
+{%else%}
+    <p>You have not created any folders.</p>
+{%endif%}
+<a href="/create_private_folder">Create New Private Folder</a>
 
 <h3>List of Public Bulletins</h3>
 {% if pub_bulletins %}
