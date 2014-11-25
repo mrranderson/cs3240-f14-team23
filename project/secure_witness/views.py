@@ -142,6 +142,7 @@ def IndexView(request):
         inbox_str = 'Inbox'
         
     your_bulletins = Bulletin.objects.filter(author=request.user)
+
     folder_list = Folder.objects.all()
 
     for b in your_bulletins:
@@ -515,6 +516,8 @@ def create_folder(request):
             f = Folder()
             f.title = form.cleaned_data['title']
             f.parent_folder = form.cleaned_data['parent_folder']
+            f.is_global = form.cleaned_data['is_global']
+            f.owner = request.user
             f.save()
         return HttpResponseRedirect('/')
     else:
