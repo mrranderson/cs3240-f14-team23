@@ -131,7 +131,7 @@ def IndexView(request):
     bulletin_list = Bulletin.objects.all()
 
     for b in bulletin_list:
-        if b.author == request.user and request.user.profile.private_key != u'':
+        if b.author == request.user and request.user.profile.private_key != u'' and b.is_encrypted and not b.is_searchable:
             b.title = decrypt_RSA(request.user.profile.private_key, str(b.title))
 
     current_user = request.user
@@ -147,7 +147,7 @@ def IndexView(request):
     my_folders = Folder.objects.filter(is_global=False)
 
     for b in your_bulletins:
-        if request.user.profile.private_key != u'':
+        if request.user.profile.private_key != u'' and b.is_encrypted and not b.is_searchable:
             b.title = decrypt_RSA(request.user.profile.private_key, str(b.title))
 
     pub_bulletins = Bulletin.objects.filter(is_public=True)
@@ -158,11 +158,17 @@ def IndexView(request):
 @login_required
 def basic_search(request):
     if request.method == "POST":
-        #
-        #  This is where you put the code to process the search
-        #  Also need to figure out a better way to search by keyword
-        #
-        return HttpResponseRedirect('/')
+        form = BasicSearchForm(request.POST)
+        if form.is_valid():
+            terms = form.cleaned_data['keywords']
+            term_list = terms.split(' ')
+            bul_list = []
+            for word in term_list:
+                bul_list.extend(Bulletin.objects.filter(title__contains=word))
+            bulletins = set(bul_list)
+            return render(request, 'secure_witness/search_results.html', {'bulletins': bulletins})
+        else:
+            return HttpResponseRedirect('/logout')
     else:
         form = BasicSearchForm()
     return render(request, 'secure_witness/search.html', {'form': form}) 
@@ -223,7 +229,6 @@ def create_bulletin(request):
                 location = str(form.cleaned_data['location'])
                 description = str(form.cleaned_data['description'])
                 #author = str(request.user)
-                b.title = encrypt_RSA(pub_key, title)
                 b.location = encrypt_RSA(pub_key, location)
                 b.description = encrypt_RSA(pub_key, description)
                 aes_key = rand_key()
@@ -239,17 +244,20 @@ def create_bulletin(request):
             else:
                 b.is_public = False                                                                                                         
                 b.is_searchable = False
+
+            if not b.is_searchable:
+                b.title = encrypt_RSA(pub_key, title)
 	    #file upload
             if request.FILES.get('docfile', None):
                 b.docfile = request.FILES['docfile']
             b.save()
-            if b.is_encrypted:
+            if b.is_encrypted and b.docfile:
                 directory = os.path.dirname(__file__)
                 directory = os.path.join(directory, "../project/")
                 filename = os.path.join(directory, b.docfile.url[1:])
                 encrypt_file(aes_key, filename, filename) 
         else:
-            return HttpResponseRedirect('/logout')
+            return HttpResponseRedirect('/create_bulletin')
         return HttpResponseRedirect('/')
     else:
         form = BulletinForm()
@@ -261,7 +269,7 @@ def request_bulletin(request, bulletin_id):
     #Code needs work - cases
     n = Notification()
     bulletin = get_object_or_404(Bulletin, pk=bulletin_id)
-    if(bulletin.is_public):
+    if(bulletin.is_public) or bulletin.author == request.user:
         i=0
     elif(bulletin.is_searchable):
         n.subject = str(request.user) + ' has requested access to your bulletin'
@@ -276,12 +284,14 @@ def request_bulletin(request, bulletin_id):
 @login_required
 def detail_bulletin(request, bulletin_id):
     bulletin = get_object_or_404(Bulletin, pk=bulletin_id)
+    userprof = UserProfile.objects.filter(user=bulletin.author)[0]
     #return render(request, 'secure_witness/detail_bulletin.html', {'bulletin': bulletin, 'user':request.user})
     #Decrypt if user is author or has permissions to view
     if bulletin.is_encrypted and request.user == bulletin.author and request.user.profile.private_key != u'':
         temp_b = bulletin
         private_key_loc = request.user.profile.private_key
-        temp_b.title = decrypt_RSA(private_key_loc, str(bulletin.title))
+        if not bulletin.is_searchable:
+            temp_b.title = decrypt_RSA(private_key_loc, str(bulletin.title))
         temp_b.description = decrypt_RSA(private_key_loc, str(bulletin.description))
         temp_b.location = decrypt_RSA(private_key_loc, str(bulletin.location))
         aes_key = decrypt_RSA(private_key_loc, str(bulletin.doc_key))
@@ -295,9 +305,21 @@ def detail_bulletin(request, bulletin_id):
         decrypt_file(aes_key, filename, dest)
         '''
 
-        return render(request, 'secure_witness/detail_bulletin.html', {'bulletin': temp_b})
+        return render(request, 'secure_witness/detail_bulletin.html', {'bulletin': temp_b, 'userprof':userprof})
 
-    return render(request, 'secure_witness/detail_bulletin.html', {'bulletin': bulletin})
+    return render(request, 'secure_witness/detail_bulletin.html', {'bulletin': bulletin, 'userprof':userprof})
+
+@login_required
+def detail_user(request, bulletin_id):
+    bulletin = get_object_or_404(Bulletin, pk=bulletin_id)
+    user = bulletin.author
+    userprof = UserProfile.objects.filter(user=user)[0]
+    if userprof.is_public:
+        public_bulletins = Bulletin.objects.filter(author=user, is_public=True)
+        searchable_bulletins = Bulletin.objects.filter(author=user, is_public=False, is_searchable=True)
+        return render(request, 'secure_witness/detail_user.html', {'user':user, 'userprof':userprof, 'public_bulletins':public_bulletins, 'searchable_bulletins':searchable_bulletins})
+    else:
+        return HttpResponseRedirect('/')
     
 @login_required
 def view_notification(request, notification_id):
@@ -417,20 +439,22 @@ def accept_notification(request, notification_id):
     a_key = request.user.profile.private_key
     r_key = notification.sender.profile.public_key
     new_b = Bulletin()
-    new_b.title = encrypt_RSA(r_key, decrypt_RSA(a_key, b.title))
+    #new_b.title = encrypt_RSA(r_key, "Requested: "+decrypt_RSA(a_key, b.title))
+    new_b.title = encrypt_RSA(r_key, "Requested: "+str(b.title))
     new_b.date_created = b.date_created
     new_b.date_modified = b.date_modified
     new_b.author = notification.sender
 #    new_b.reader = notification.sender
     new_b.location = encrypt_RSA(r_key, decrypt_RSA(a_key, b.location))
     new_b.description = encrypt_RSA(r_key, decrypt_RSA(a_key, b.description))
-    new_b.is_encrypted = b.is_encrypted
-    new_b.is_public = b.is_public 
-    new_b.is_searchable = b.is_searchable
+    new_b.is_encrypted = True
+    new_b.is_public = False 
+    new_b.is_searchable = False
     new_b.folder = b.folder
     new_b.docfile = b.docfile
     new_b.doc_key = encrypt_RSA(r_key, decrypt_RSA(a_key, b.doc_key))
     new_b.save()
+    notification.delete()
     return HttpResponseRedirect('/inbox')
 
 @login_required
@@ -455,6 +479,7 @@ def reject_notification(request, notification_id):
 def manage_user(request):
     updated_password = None
     updated_ssh = None
+    updated_public = None
     form = UserEditForm()
     if request.method == "POST":
         form = UserEditForm(request.POST)
@@ -473,7 +498,8 @@ def manage_user(request):
                 else:
                     updated_password = 'You entered your current password incorrectly'
             else:
-                updated_password = 'You need to enter all of the fields to updated your password'
+                if form.cleaned_data['current_password'] != '' or form.cleaned_data['new_password'] != '' or form.cleaned_data['confirm_new_password'] != '':
+                    updated_password = 'You need to enter all of the fields to updated your password'
             if form.cleaned_data['private_key_loc'] != '' and form.cleaned_data['public_key_loc'] != '':
                 us = UserProfile.objects.filter(user=request.user)[0]
                 us.public_key = form.cleaned_data['public_key_loc']
@@ -481,12 +507,25 @@ def manage_user(request):
                 us.save()
                 updated_ssh = 'Your ssh keys have been updated'
             else:
-                updated_ssh = 'You need to enter all of the fields to update your SSH keys'
+                if form.cleaned_data['private_key_loc'] != '' or form.cleaned_data['public_key_loc'] != '':
+                    updated_ssh = 'You need to enter all of the fields to update your SSH keys'
+            if form.cleaned_data['make_public'] and form.cleaned_data['make_private']:
+                updated_public = 'You cannot make your account both public and private'
+            elif form.cleaned_data['make_public']:
+                us = UserProfile.objects.filter(user=request.user)[0]
+                us.is_public = True
+                us.save()
+                updated_public = 'You succesfully made your account public'
+            elif form.cleaned_data['make_private']:
+                us = UserProfile.objects.filter(user=request.user)[0]
+                us.is_public = False
+                us.save()
+                updated_public = 'You succesfully made your account private'
         else:
             return HttpResponseRedirect('/manage')
-        return render(request, 'secure_witness/account_manage.html', {'form': form, 'user': request.user, 'updated_password':updated_password, 'updated_ssh':updated_ssh})
+        return render(request, 'secure_witness/account_manage.html', {'form': form, 'user': UserProfile.objects.filter(user=request.user)[0], 'updated_password':updated_password, 'updated_ssh':updated_ssh, 'updated_public':updated_public})
     else:
-        return render(request, 'secure_witness/account_manage.html', {'form': form, 'user': request.user, 'updated_password':updated_password, 'updated_ssh':updated_ssh})
+        return render(request, 'secure_witness/account_manage.html', {'form': form, 'user': UserProfile.objects.filter(user=request.user)[0], 'updated_password':updated_password, 'updated_ssh':updated_ssh, 'updated_public':updated_public})
 
 @login_required
 def delete_user(request):
@@ -502,6 +541,9 @@ def delete_user(request):
                 u = us.user
                 u.delete()
                 us.delete()
+                
+                #ADD CODE TO DELETE ASSOCIATED BULLETINS
+                
                 return HttpResponseRedirect('/')
         else:
             return HttpResponseRedirect('/')

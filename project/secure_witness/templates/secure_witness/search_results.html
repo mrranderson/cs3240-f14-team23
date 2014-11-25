@@ -1,0 +1,15 @@
+<h3>Search Results</h3>
+{% block content %}
+{% if bulletins %}
+    <ul>
+    {% for bulletin in bulletins %}
+		{%if bulletin.is_searchable%}
+      		<li><a href="{% url 'detail_bulletin' bulletin.id %}">{{bulletin.title}}</a></li>
+		{%endif%}
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No bulletins matched your search results</p>
+{% endif %}
+<br><a href='/search'><input type="button" value="Search Again" /></a> <a href='/'><input type="button" value="Home" /></a>
+{%endblock%}

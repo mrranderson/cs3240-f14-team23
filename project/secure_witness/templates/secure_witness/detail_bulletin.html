@@ -15,14 +15,20 @@ Location: Encrypted Data<br>
 {%elif bulletin.is_public or bulletin.author == user%}
 <h1>{{ bulletin.title }}</h1>
 
+{%if userprof.is_public%}
+<h2>Author: <a href="{% url 'detail_user' bulletin.id %}">{{ bulletin.author }}</a></h2>
+{%else%}
 <h2>Author: {{ bulletin.author }}</h2>
+{%endif%}
 
 <h3>Date created: {{bulletin.date_created}} <br>
 Date modified: {{bulletin.date_modified}} <br>
 Location: {{bulletin.location}}<br>
-
+{%if bulletin.docfile%}
 Files: <a href="{{ bulletin.docfile.url }}">{{ bulletin.docfile.name }}</a>
-
+{%else%}
+No Files Attached to this bulletin
+{%endif%}
 {%if bulletin.folder %}
 Parent Folder: <a href="{% url 'detail_folder' bulletin.folder.id %}">{{bulletin.folder.title}}</a>
 {%else %}

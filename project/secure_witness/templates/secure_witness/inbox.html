@@ -12,4 +12,6 @@
 	<li><a href="{% url 'view_notification' n.id %}">{{n.subject}}</a> &nbsp;|&nbsp; <a href="{% url 'delete_notification' n.id %}">delete</a></li>
 {% endfor %}
 </ul>
+<br>
+<a style="text-decoration:none" href="/"><input type="button" value="Back" /></a>
 {% endblock %}
