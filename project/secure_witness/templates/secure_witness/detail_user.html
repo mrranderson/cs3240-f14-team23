@@ -1,0 +1,30 @@
+{%block content%}
+<h3>This is the profile of user: {{user.username}}</h3>
+
+<br>
+
+<h3>{{user.username}}'s Public Bulletins:</h3>
+{%if public_bulletins%}
+    <ul>
+    {% for bulletin in public_bulletins %}
+        <li>Bulletin {{forloop.counter}}: <a href="{% url 'detail_bulletin' bulletin.id %}">{{ bulletin.title }}</a></li>
+    {% endfor %}
+    </ul>
+{%else%}
+This user has no public bulletins
+{%endif%}
+
+<h3>{{user.username}}'s Searchable Bulletins:</h3>
+{%if searchable_bulletins%}
+    <ul>
+    {% for bulletin in searchable_bulletins %}
+        <li>Bulletin {{forloop.counter}}: <a href="{% url 'detail_bulletin' bulletin.id %}">{{ bulletin.title }}</a></li>
+    {% endfor %}
+    </ul>
+{%else%}
+This user has no public bulletins
+{%endif%}
+
+<a href="/"><input type="button" value="Home" /></a>
+
+{%endblock%}

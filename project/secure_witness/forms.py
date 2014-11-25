@@ -42,6 +42,8 @@ class UserEditForm(forms.Form):
     confirm_new_password = forms.CharField(required=False, label='Confirm New Password')
     public_key_loc = forms.CharField(required=False, max_length=200, label='Change Public Key Location')
     private_key_loc = forms.CharField(required=False, max_length=200, label='Change Private Key Location')
+    make_public = forms.BooleanField(required=False, label='Make Your account Public?')
+    make_private = forms.BooleanField(required=False, label='Make Your account Private?')
 
 class UserDeleteForm(forms.Form):
     keep_data = forms.BooleanField(required=False, label='I confirm I would like to delete my Account')

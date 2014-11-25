@@ -282,6 +282,7 @@ def request_bulletin(request, bulletin_id):
 @login_required
 def detail_bulletin(request, bulletin_id):
     bulletin = get_object_or_404(Bulletin, pk=bulletin_id)
+    userprof = UserProfile.objects.filter(user=bulletin.author)[0]
     #return render(request, 'secure_witness/detail_bulletin.html', {'bulletin': bulletin, 'user':request.user})
     #Decrypt if user is author or has permissions to view
     if bulletin.is_encrypted and request.user == bulletin.author and request.user.profile.private_key != u'':
@@ -302,9 +303,21 @@ def detail_bulletin(request, bulletin_id):
         decrypt_file(aes_key, filename, dest)
         '''
 
-        return render(request, 'secure_witness/detail_bulletin.html', {'bulletin': temp_b})
+        return render(request, 'secure_witness/detail_bulletin.html', {'bulletin': temp_b, 'userprof':userprof})
 
-    return render(request, 'secure_witness/detail_bulletin.html', {'bulletin': bulletin})
+    return render(request, 'secure_witness/detail_bulletin.html', {'bulletin': bulletin, 'userprof':userprof})
+
+@login_required
+def detail_user(request, bulletin_id):
+    bulletin = get_object_or_404(Bulletin, pk=bulletin_id)
+    user = bulletin.author
+    userprof = UserProfile.objects.filter(user=user)[0]
+    if userprof.is_public:
+        public_bulletins = Bulletin.objects.filter(author=user, is_public=True)
+        searchable_bulletins = Bulletin.objects.filter(author=user, is_public=False, is_searchable=True)
+        return render(request, 'secure_witness/detail_user.html', {'user':user, 'userprof':userprof, 'public_bulletins':public_bulletins, 'searchable_bulletins':searchable_bulletins})
+    else:
+        return HttpResponseRedirect('/')
     
 @login_required
 def view_notification(request, notification_id):
@@ -464,6 +477,7 @@ def reject_notification(request, notification_id):
 def manage_user(request):
     updated_password = None
     updated_ssh = None
+    updated_public = None
     form = UserEditForm()
     if request.method == "POST":
         form = UserEditForm(request.POST)
@@ -482,7 +496,8 @@ def manage_user(request):
                 else:
                     updated_password = 'You entered your current password incorrectly'
             else:
-                updated_password = 'You need to enter all of the fields to updated your password'
+                if form.cleaned_data['current_password'] != '' or form.cleaned_data['new_password'] != '' or form.cleaned_data['confirm_new_password'] != '':
+                    updated_password = 'You need to enter all of the fields to updated your password'
             if form.cleaned_data['private_key_loc'] != '' and form.cleaned_data['public_key_loc'] != '':
                 us = UserProfile.objects.filter(user=request.user)[0]
                 us.public_key = form.cleaned_data['public_key_loc']
@@ -490,12 +505,25 @@ def manage_user(request):
                 us.save()
                 updated_ssh = 'Your ssh keys have been updated'
             else:
-                updated_ssh = 'You need to enter all of the fields to update your SSH keys'
+                if form.cleaned_data['private_key_loc'] != '' or form.cleaned_data['public_key_loc'] != '':
+                    updated_ssh = 'You need to enter all of the fields to update your SSH keys'
+            if form.cleaned_data['make_public'] and form.cleaned_data['make_private']:
+                updated_public = 'You cannot make your account both public and private'
+            elif form.cleaned_data['make_public']:
+                us = UserProfile.objects.filter(user=request.user)[0]
+                us.is_public = True
+                us.save()
+                updated_public = 'You succesfully made your account public'
+            elif form.cleaned_data['make_private']:
+                us = UserProfile.objects.filter(user=request.user)[0]
+                us.is_public = False
+                us.save()
+                updated_public = 'You succesfully made your account private'
         else:
             return HttpResponseRedirect('/manage')
-        return render(request, 'secure_witness/account_manage.html', {'form': form, 'user': request.user, 'updated_password':updated_password, 'updated_ssh':updated_ssh})
+        return render(request, 'secure_witness/account_manage.html', {'form': form, 'user': UserProfile.objects.filter(user=request.user)[0], 'updated_password':updated_password, 'updated_ssh':updated_ssh, 'updated_public':updated_public})
     else:
-        return render(request, 'secure_witness/account_manage.html', {'form': form, 'user': request.user, 'updated_password':updated_password, 'updated_ssh':updated_ssh})
+        return render(request, 'secure_witness/account_manage.html', {'form': form, 'user': UserProfile.objects.filter(user=request.user)[0], 'updated_password':updated_password, 'updated_ssh':updated_ssh, 'updated_public':updated_public})
 
 @login_required
 def delete_user(request):
