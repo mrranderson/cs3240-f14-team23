@@ -143,8 +143,8 @@ def IndexView(request):
         
     your_bulletins = Bulletin.objects.filter(author=request.user)
 
-    folder_list = Folder.objects.filter(is_global=True)
-    my_folders = Folder.objects.filter(is_global=False)
+    folder_list = Folder.objects.filter(is_global=True).filter(parent_folder__isnull=True)
+    my_folders = Folder.objects.filter(is_global=False).filter(parent_folder__isnull=True)
 
     for b in your_bulletins:
         if request.user.profile.private_key != u'' and b.is_encrypted and not b.is_searchable:
