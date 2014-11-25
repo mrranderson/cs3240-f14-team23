@@ -267,7 +267,7 @@ def request_bulletin(request, bulletin_id):
     #Code needs work - cases
     n = Notification()
     bulletin = get_object_or_404(Bulletin, pk=bulletin_id)
-    if(bulletin.is_public):
+    if(bulletin.is_public) or bulletin.author == request.user:
         i=0
     elif(bulletin.is_searchable):
         n.subject = str(request.user) + ' has requested access to your bulletin'
