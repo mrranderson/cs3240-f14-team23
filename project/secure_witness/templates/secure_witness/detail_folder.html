@@ -2,7 +2,6 @@
 <div style="position: absolute;top: 40%;left: 50%;margin-top: -100px;margin-left: -180px;width: 360px;height: 200px; padding-left: 25px; padding-right: 10px" >
 <h1>{{ folder.title }}</h1>
 
-<p>{{ folder.is_global }}</p>
 {% if folder.is_global == False %}
 <p>This is a private folder.</p>
 {% else %}
@@ -13,7 +12,7 @@
 {% endif %}
 
 {% if subfolder_list %}
-<h3>Subfolders:</h3><br>
+<h3>Subfolders:</h3>
 <ul>
 {% for f in subfolder_list %}
   <li><a href="{% url 'detail_folder' f.id %}">{{f.title}}</a></li>
@@ -24,14 +23,22 @@
 {% endif %}
 
 {% if bulletin_list %}
-<h3>Bulletins</h3><br>
+<h3>Bulletins</h3>
 <ul>
 {% for b in bulletin_list %}
   <li><a href="{% url 'detail_bulletin' b.id %}"> {{b.title}} </a></li>
 {% endfor %}
 </ul>
+{% elif private_bulletins %}
+<h3>Bulletins</h3>
+<ul>
+{% for b in private_bulletins %}
+  <li><a href="{% url 'detail_bulletin' b.id %}"> {{b.title}} </a></li>
+{% endfor %}
+</ul>
 {% else %}
 <p>This folder is empty.</p>
+
 {% endif %}
 
 <a style="text-decoration:none" href="/"><input type="button" value="Back" /></a>

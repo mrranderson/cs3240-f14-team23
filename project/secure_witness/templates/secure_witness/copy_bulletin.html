@@ -1,0 +1,22 @@
+{% block content %}
+<div style="position: absolute;top: 20%;left: 50%;margin-top: -100px;margin-left: -180px;width: 360px;height: 200px; padding-left: 25px; padding-right: 10px" >
+<h3>Copy Bulletin to a Private Folder</h3>
+
+<form method="post" action="{% url 'copy_bulletin' bulletin.id %}">
+{% csrf_token %}
+    <table>
+<tr>
+    <td>{{ form.folder.label_tag }}</td>
+    <td>{{ form.folder }}</td>
+</tr>
+</table>
+
+<!-- NEED TO IMPLEMENT ERROR CHECKING -->
+
+<br>
+<input type="submit" value="Copy" />
+<a style="text-decoration:none" href = "/"><input type="button" value = "Cancel"/></a>
+</form>
+</div>
+
+{% endblock %}

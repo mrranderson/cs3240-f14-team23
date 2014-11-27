@@ -31,7 +31,8 @@ class Bulletin(models.Model):
 	is_encrypted = models.BooleanField(default=False)
 	is_public = models.BooleanField(default=False)
 	is_searchable = models.BooleanField(default=False)
-	folder = models.ForeignKey(Folder, null=True)
+	folder = models.ForeignKey(Folder, null=True, related_name='bulletin_parent')
+	private_folder = models.ForeignKey(Folder, null=True, related_name='bulletin_private')
 	#file upload
 	docfile = models.FileField(upload_to='documents', blank=True, null=True)
 	doc_key = models.CharField(max_length=200, default="")
@@ -67,3 +68,4 @@ class Notification(models.Model):
 class Follow(models.Model):
     owner = models.ForeignKey(User)
     bulletin = models.ForeignKey(Bulletin)
+

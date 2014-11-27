@@ -47,6 +47,7 @@ Files: <a href="{{ bulletin.docfile.url }}">{{ bulletin.docfile.name }}</a>
 <a style="text-decoration:none" href="{% url 'edit_bulletin' bulletin.id %}"><input type = "button" value= "Edit Bulletin" /></a>
 <a style="text-decoration:none" href="{% url 'delete_bulletin' bulletin.id %}"><input type = "button" value= "Delete Bulletin" /></a>
 {%endif%}
+<a style="text-decoration:none" href="{% url 'copy_bulletin' bulletin.id %}"><input type = "button" value= "Copy to private folder" /></a>
 <a style="text-decoration:none" href="/"><input type="button" value="Back" /></a>
 {%elif bulletin.is_searchable%}
 <h1>{{ bulletin.title }}</h1>

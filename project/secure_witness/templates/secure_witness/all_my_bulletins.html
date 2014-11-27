@@ -1,0 +1,9 @@
+<div>
+<h3>All My Bulletins</h3>
+<ul>
+{%for bulletin in bulletin_list %}
+      <li><a href="{% url 'detail_bulletin' bulletin.id %}">{{bulletin.title}}</a></li>
+{%endfor%}
+</ul>
+<a style="text-decoration:none" href="/"><input type="button" value="Back" /></a>
+</div>

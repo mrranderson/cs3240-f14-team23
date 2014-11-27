@@ -1,0 +1,9 @@
+<div>
+<h3>All My Bulletins</h3>
+<ul>
+{%for follow in fol_list %}
+      <li><a href="{% url 'detail_bulletin' follow.bulletin.id %}">{{follow.bulletin.title}}</a></li>
+{%endfor%}
+</ul>
+<a style="text-decoration:none" href="/"><input type="button" value="Back" /></a>
+</div>

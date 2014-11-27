@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 from django.views import generic
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
-from forms import UserForm, BasicSearchForm, BulletinForm, FolderForm, UserEditForm, UserDeleteForm, PrivateFolderForm
+from forms import UserForm, BasicSearchForm, BulletinForm, FolderForm, UserEditForm, UserDeleteForm, PrivateFolderForm, CopyForm
 from django.contrib.auth import login, authenticate, logout
 from secure_witness.models import Bulletin, Document, Notification, Follow, Folder
 from django.contrib.auth.models import User
@@ -586,9 +586,10 @@ def create_private_folder(request):
 def detail_folder(request, folder_id):
     f = get_object_or_404(Folder, pk=folder_id)
     bulletin_list = Bulletin.objects.filter(folder = f)
+    private_bulletins = Bulletin.objects.filter(private_folder = f)
     subfolder_list = Folder.objects.filter(parent_folder = f)
     user = request.user
-    return render(request, 'secure_witness/detail_folder.html', {'folder': f, 'subfolder_list': subfolder_list, 'bulletin_list': bulletin_list, 'user':user})
+    return render(request, 'secure_witness/detail_folder.html', {'folder': f, 'subfolder_list': subfolder_list, 'bulletin_list': bulletin_list, 'user':user, 'private_bulletins': private_bulletins})
 
 @login_required
 def delete_folder(request, folder_id):
@@ -610,3 +611,27 @@ def edit_folder(request, folder_id):
         form = PrivateFolderForm(initial={'title':f.title})
     return render(request, 'secure_witness/edit_folder.html', {'folder': f, 'form': form})
 # Create your views here.
+
+def all_global_folders(request):
+    return render(request, 'secure_witness/all_global_folders.html', {'folder_list':Folder.objects.filter(is_global=True).filter(parent_folder__isnull=True)})
+    
+def all_private_folders(request):
+    return render(request, 'secure_witness/all_private_folders.html', {'folder_list':Folder.objects.filter(is_global=False).filter(parent_folder__isnull=True)})
+
+def all_my_bulletins(request):
+    return render(request, 'secure_witness/all_my_bulletins.html', {'bulletin_list':Bulletin.objects.filter(author=request.user)})
+
+def all_followed_bulletins(request):
+    return render(request, 'secure_witness/all_followed_bulletins.html', {'fol_list':Follow.objects.filter(owner=request.user)})
+
+def copy_bulletin(request, bulletin_id):
+    bulletin = get_object_or_404(Bulletin, pk=bulletin_id)
+    if request.method == "POST":
+        form = CopyForm(request.POST)
+        if form.is_valid():
+            bulletin.private_folder = form.cleaned_data['folder']
+            bulletin.save()
+        return HttpResponseRedirect('/')
+    else:
+        form = CopyForm()
+    return render(request, 'secure_witness/copy_bulletin.html', {'form': form, 'bulletin': bulletin})

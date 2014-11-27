@@ -1,13 +1,124 @@
-<h3>Welcome to Secure Witness: {{user.username}}</h3>
+{% block content %}
+<table width="100%">
+<tbody><tr><td>
+<table style="padding:20px;" align="center" width="900" >
+<tbody>
+
+<tr><td colspan="3">
+<h1>Welcome to Secure Witness</h1>
+</td></tr>
+
+<tr><td height="30" colspan="3"></td></tr>
+
+<tr><td width="300" valign="top">
+<h3>User: {{user.username}}</h3>
 <ul>
 	<li><a href="/search">Search Bulletins</a></li>
 	<li><a href="/inbox">{{inbox_str}}</a></li>
 	<li><a href="/manage">Account Management</a></li>
 	<li><a href="/logout">Logout</a></li>
 </ul>
+</td>
 
+<td width="100"></td>
+
+<td width="500" valign="top">
+<h3>Bulletins You Are Following:</h3>
+{%if fol_bulletins %}
+	<ul>
+	{%for bulletin in fol_bulletins|slice:":10" %}
+		<li>Bulletin {{forloop.counter}}: <a href="{% url 'detail_bulletin' bulletin.bulletin.id %}">{{ bulletin.bulletin.title }}</a></li>
+	{%endfor %}
+	</ul>
+	{%if fol_bulletins|length > 10 %}
+	        <a href="{% url 'all_followed_bulletins' %}">Show all</a><br>
+	{%endif %}
+
+{%else%}
+	<p>You are following no bulletins</p>
+{%endif%}
+</td></tr>
+
+<tr><td height="30" colspan="3"></td></tr>
+
+<tr><td width="300" valign="top">
+<h3>List of My Folders:</h3>
+{%if my_folders%}
+    <ul>
+    {%for folder in my_folders|slice:":10" %}
+      <li><a href="{% url 'detail_folder' folder.id %}">{{folder.title}}</a></li>
+    {%endfor%}
+    </ul>
+    {%if my_folders|length > 10 %}
+      <a href="{% url 'all_private_folders' %}">Show all</a><br>
+    {%endif %}
+{%else%}
+    <p>You have not created any folders.</p>
+{%endif%}
+<a href="/create_private_folder">Create New Private Folder</a>
+</td>
+
+<td width="100"></td>
+
+<td width="500" valign="top">
+<h3>List of Your Bulletins:</h3>
+{% if your_bulletins %}
+	<ul>
+	{%for bulletin in your_bulletins|slice:":10" %}
+		<li>Bulletin {{forloop.counter}}: <a href="{% url 'detail_bulletin' bulletin.id %}">{{ bulletin.title }}</a></li>
+	{%endfor%}
+	</ul>
+	{%if your_bulletins|length > 10 %}
+	        <a href="{% url 'all_my_bulletins' %}">Show all</a><br>
+	{%endif %}
+{%else%}
+	<p>You have created no bulletins</p>
+{%endif%}
+<a href="/create_bulletin">Create New Bulletin</a>
+</td></tr>
+
+<tr><td height="30" colspan="3"></td></tr>
+
+<tr><td width="300" valign="top">
+<h3>List of Global Folders:</h3>
+{%if folder_list%}
+    <ul>
+    {%for folder in folder_list|slice:":10"%}
+      <li><a href="{% url 'detail_folder' folder.id %}">{{folder.title}}</a></li>
+    {%endfor%}
+    </ul>
+    {%if folder_list|length > 10 %}
+	        <a href="{% url 'all_global_folders' %}">Show all</a><br>
+	{%endif %}
+{%else%}
+    <p>No global folders are available.</p>
+{%endif%}
+<a href="/create_folder">Create New Global Folder</a>
+</td></td>
+
+<td width="100"></td>
+
+<td width="500" valign="top">
+<h3>List of Public Bulletins</h3>
+{% if pub_bulletins %}
+	<ul>
+	{%for bulletin in pub_bulletins|slice:":10" %}
+      {% if bulletin.is_encrypted and bulletin.author != user and not bulletin.is_searchable%}
+        <li>Bulletin {{forloop.counter}}: <a href="{% url 'detail_bulletin' bulletin.id %}">{{ "Encrypted" }}</a></li>
+      {% else %}
+        <li>Bulletin {{forloop.counter}}: <a href="{% url 'detail_bulletin' bulletin.id %}">{{ bulletin.title }}</a></li>
+      {% endif %}
+	{%endfor%}
+	</ul>
+{%else%}
+	<p>There are no public bulletins</p>
+{%endif%}
+</td></tr>
+
+<tr><td height="40"></td></tr>
+<tr><td valign="top">
 <h3>List of All Bulletins (debugging only)</h3>
-{% block content %}
+
 {% if bulletin_list %}
     <ul>
     {% for bulletin in bulletin_list %}
@@ -21,70 +132,9 @@
 {% else %}
     <p>No bulletins are available.</p>
 {% endif %}
-
-<h3>List of Your Bulletins:</h3>
-{% if your_bulletins %}
-	<ul>
-	{%for bulletin in your_bulletins %}
-		<li>Bulletin {{forloop.counter}}: <a href="{% url 'detail_bulletin' bulletin.id %}">{{ bulletin.title }}</a></li>
-	{%endfor%}
-	</ul>
-{%else%}
-	<p>You have created no bulletins</p>
-{%endif%}
-<a href="/create_bulletin">Create New Bulletin</a>
-
-<h3>List of Global Folders:</h3>
-{%if folder_list%}
-    <ul>
-    {%for folder in folder_list%}
-      <li><a href="{% url 'detail_folder' folder.id %}">{{folder.title}}</a></li>
-    {%endfor%}
-    </ul>
-{%else%}
-    <p>No global folders are available.</p>
-{%endif%}
-<a href="/create_folder">Create New Global Folder</a>
-
-<h3>List of My Folders:</h3>
-{%if my_folders%}
-    <ul>
-    {%for folder in my_folders%}
-      <li><a href="{% url 'detail_folder' folder.id %}">{{folder.title}}</a></li>
-    {%endfor%}
-    </ul>
-{%else%}
-    <p>You have not created any folders.</p>
-{%endif%}
-<a href="/create_private_folder">Create New Private Folder</a>
-
-<h3>List of Public Bulletins</h3>
-{% if pub_bulletins %}
-	<ul>
-	{%for bulletin in pub_bulletins %}
-      {% if bulletin.is_encrypted and bulletin.author != user and not bulletin.is_searchable%}
-        <li>Bulletin {{forloop.counter}}: <a href="{% url 'detail_bulletin' bulletin.id %}">{{ "Encrypted" }}</a></li>
-      {% else %}
-        <li>Bulletin {{forloop.counter}}: <a href="{% url 'detail_bulletin' bulletin.id %}">{{ bulletin.title }}</a></li>
-      {% endif %}
-	{%endfor%}
-	</ul>
-{%else%}
-	<p>There are no public bulletins</p>
-{%endif%}
-
-<h3>Bulletins You Are Following:</h3>
-{% if fol_bulletins %}
-	<ul>
-	{%for bulletin in fol_bulletins %}
-		<li>Bulletin {{forloop.counter}}: <a href="{% url 'detail_bulletin' bulletin.bulletin.id %}">{{ bulletin.bulletin.title }}</a></li>
-	{%endfor%}
-	</ul>
-{%else%}
-	<p>You are following no bulletins</p>
-{%endif%}
+</td></tr>
+</tbody></table>
+</td></tr>
+</tbody></table>
 
 {% endblock %}
-
-
-
