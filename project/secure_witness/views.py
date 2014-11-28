@@ -198,9 +198,9 @@ def lexusadduser(request):
                 if create_keys:
                    new_keys = generate_RSA()
                    new_public_key = open(str(public_key_loc), 'w+')
-                   new_public_key.write(new_keys[0])
+                   new_public_key.write(new_keys[1])
                    new_private_key = open(str(private_key_loc), 'w+')
-                   new_private_key.write(new_keys[1])
+                   new_private_key.write(new_keys[0])
 
                 new_user = User.objects.create_user(username=username, password=password)
                 auth_user = authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password'])
