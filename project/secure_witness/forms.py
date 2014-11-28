@@ -9,6 +9,7 @@ class UserForm(forms.Form):
     confirm_password = forms.CharField(widget=forms.PasswordInput())
     public_key_loc = forms.CharField(max_length=200, label='Public Key Location')
     private_key_loc = forms.CharField(max_length=200, label='Private Key Location')  
+    create_keys = forms.BooleanField(required=False, label = 'Create Keys')
  
     def clean_username(self):
         username = self.cleaned_data['username']

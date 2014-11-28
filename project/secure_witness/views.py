@@ -185,6 +185,7 @@ def lexusadduser(request):
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
             confirm = form.cleaned_data['confirm_password']
+            create_keys = form.cleaned_data['create_keys']
 
             public_key_loc = "" 
             if str(form.cleaned_data['public_key_loc']) != "":
@@ -194,6 +195,13 @@ def lexusadduser(request):
             if str(form.cleaned_data['private_key_loc']) != "":
                 private_key_loc = form.cleaned_data['private_key_loc']
             if password == confirm:
+                if create_keys:
+                   new_keys = generate_RSA()
+                   new_public_key = open(str(public_key_loc), 'w+')
+                   new_public_key.write(new_keys[0])
+                   new_private_key = open(str(private_key_loc), 'w+')
+                   new_private_key.write(new_keys[1])
+
                 new_user = User.objects.create_user(username=username, password=password)
                 auth_user = authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password'])
                 UserProfile.objects.create(user=auth_user, public_key=public_key_loc, private_key=private_key_loc)
