@@ -24,22 +24,19 @@ Location: Encrypted Data<br>
 <h3>Date created: {{bulletin.date_created}} <br>
 Date modified: {{bulletin.date_modified}} <br>
 Location: {{bulletin.location}}<br>
+
 {%if bulletin.docfile%}
 Files: <a href="{{ bulletin.docfile.url }}">{{ bulletin.docfile.name }}</a>
 {%else%}
 No Files Attached to this bulletin
 {%endif%}
+<br>
 {%if bulletin.folder %}
 Parent Folder: <a href="{% url 'detail_folder' bulletin.folder.id %}">{{bulletin.folder.title}}</a>
 {%else %}
 No parent folder.
 {%endif %}
 <br>
-
-{%if bulletin.docfile %}
-Files: <a href="{{ bulletin.docfile.url }}">{{ bulletin.docfile.name }}</a>
-{%endif %}
-
 
 <p>Description: <br>
 {{bulletin.description}}</p>
