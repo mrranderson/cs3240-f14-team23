@@ -25,8 +25,10 @@ Location: Encrypted Data<br>
 Date modified: {{bulletin.date_modified}} <br>
 Location: {{bulletin.location}}<br>
 
-{%if bulletin.docfile%}
-Files: <a href="{{ bulletin.docfile.url }}">{{ bulletin.docfile.name }}</a>
+{%if bulletin.docfile and bulletin.currently_encrypted%}
+Files: <a href="{{ bulletin.docfile.url }}.enc">{{ bulletin.docfile.name }}</a>
+{%elif bulletin.docfile and not bulletin.currently_encrypted%}
+Files: <a href="{{ bulletin.docfile.url }}.dec">{{ bulletin.docfile.name }}</a>
 {%else%}
 No Files Attached to this bulletin
 {%endif%}
@@ -43,6 +45,8 @@ No parent folder.
 {%if bulletin.author == user%}
 <a style="text-decoration:none" href="{% url 'edit_bulletin' bulletin.id %}"><input type = "button" value= "Edit Bulletin" /></a>
 <a style="text-decoration:none" href="{% url 'delete_bulletin' bulletin.id %}"><input type = "button" value= "Delete Bulletin" /></a>
+<a style="text-decoration:none" href="{% url 'decrypt_document' bulletin.id %}"><input type = "button" value= "Decrypt Document" /></a>
+<a style="text-decoration:none" href="{% url 'encrypt_document' bulletin.id %}"><input type = "button" value= "Encrypt Document" /></a>
 {%endif%}
 <a style="text-decoration:none" href="{% url 'copy_bulletin' bulletin.id %}"><input type = "button" value= "Copy to private folder" /></a>
 <a style="text-decoration:none" href="/"><input type="button" value="Back" /></a>

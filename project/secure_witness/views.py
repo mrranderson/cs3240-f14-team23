@@ -230,6 +230,7 @@ def create_bulletin(request):
             b.folder = form.cleaned_data['folder']
             #encryption handled here
             if not form.cleaned_data['is_public']:
+                b.currently_encrypted = True
                 b.folder = form.cleaned_data['folder']
                 b.is_encrypted = True
                 pub_key = request.user.profile.public_key
@@ -263,7 +264,9 @@ def create_bulletin(request):
                 directory = os.path.dirname(__file__)
                 directory = os.path.join(directory, "../project/")
                 filename = os.path.join(directory, b.docfile.url[1:])
-                encrypt_file(aes_key, filename, filename) 
+                aes_key = decrypt_RSA(request.user.profile.private_key, str(b.doc_key))
+                encrypt_file(aes_key, filename, filename + '.enc') 
+                os.remove(filename)
         else:
             return HttpResponseRedirect('/create_bulletin')
         return HttpResponseRedirect('/')
@@ -304,14 +307,6 @@ def detail_bulletin(request, bulletin_id):
         temp_b.location = decrypt_RSA(private_key_loc, str(bulletin.location))
         aes_key = decrypt_RSA(private_key_loc, str(bulletin.doc_key))
         temp_b.docfile = bulletin.docfile
-        #change this to decrypt and save a file when button is clicked
-        '''
-        directory = os.path.dirname(__file__)
-        directory = os.path.join(directory, "../project/")
-        filename = os.path.join(directory, bulletin.docfile.url[1:])
-        dest = filename+".tmp"
-        decrypt_file(aes_key, filename, dest)
-        '''
 
         return render(request, 'secure_witness/detail_bulletin.html', {'bulletin': temp_b, 'userprof':userprof})
 
@@ -420,6 +415,37 @@ def edit_bulletin(request, bulletin_id):
     else:
         form = BulletinForm(initial={'title': bulletin.title, 'description':bulletin.description, 'location':bulletin.location, 'is_public':bulletin.is_public, 'is_searchable':bulletin.is_searchable, 'folder':bulletin.folder})
     return render(request, 'secure_witness/edit_bulletin.html', {'bulletin': bulletin, 'form': form})
+
+@login_required
+def decrypt_document(request, bulletin_id):
+	bulletin = get_object_or_404(Bulletin, pk=bulletin_id)
+	if bulletin.author == request.user:
+		private_key_loc = request.user.profile.private_key
+		aes_key = decrypt_RSA(private_key_loc, bulletin.doc_key)
+		directory = os.path.dirname(__file__)
+		directory = os.path.join(directory, "../project/")
+		filename = os.path.join(directory, bulletin.docfile.url[1:])
+		if bulletin.is_encrypted and bulletin.docfile and os.path.isfile(filename+".enc"):
+			decrypt_file(aes_key, filename+".enc", filename+".dec")
+			bulletin.currently_encrypted = False
+			bulletin.save()
+	return HttpResponseRedirect('/'+bulletin_id)
+
+@login_required
+def encrypt_document(request, bulletin_id):
+  bulletin = get_object_or_404(Bulletin, pk=bulletin_id)
+  if bulletin.author == request.user:
+    #private_key_loc = request.user.profile.private_key
+    #aes_key = decrypt_RSA(private_key_loc, str(bulletin.doc_key))
+    directory = os.path.dirname(__file__)
+    directory = os.path.join(directory, "../project/")
+    filename = os.path.join(directory, bulletin.docfile.url[1:])
+    if bulletin.is_encrypted and bulletin.docfile and os.path.isfile(filename+".dec"):
+      os.remove(filename+".dec")
+      bulletin.currently_encrypted = True
+      bulletin.save()
+      #encrypt_file(aes_key, filename, filename)
+  return HttpResponseRedirect('/'+bulletin_id)
 
 @login_required
 def delete_bulletin(request, bulletin_id):

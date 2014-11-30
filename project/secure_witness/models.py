@@ -36,6 +36,7 @@ class Bulletin(models.Model):
 	#file upload
 	docfile = models.FileField(upload_to='documents', blank=True, null=True)
 	doc_key = models.CharField(max_length=200, default="")
+	currently_encrypted = models.BooleanField(default=False)
 	#readers = ArrayField(models.ForeignKey(Permission))
 
 	def filename(self):
