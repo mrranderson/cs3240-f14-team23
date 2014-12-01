@@ -658,6 +658,9 @@ def all_my_bulletins(request):
 def all_followed_bulletins(request):
     return render(request, 'secure_witness/all_followed_bulletins.html', {'fol_list':Follow.objects.filter(owner=request.user)})
 
+def all_public_bulletins(request):
+    return render(request, 'secure_witness/all_public_bulletins.html', {'pub_bulletins':Bulletin.objects.filter(is_public=True)})
+
 def copy_bulletin(request, bulletin_id):
     bulletin = get_object_or_404(Bulletin, pk=bulletin_id)
     if request.method == "POST":

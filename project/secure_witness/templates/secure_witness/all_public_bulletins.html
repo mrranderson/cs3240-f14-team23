@@ -1,0 +1,12 @@
+<div>
+<h3>All Public Bulletins</h3>
+<ul>
+{%for bulletin in pub_bulletins %}
+      {% if bulletin.is_encrypted and bulletin.author != user and not bulletin.is_searchable%}
+        <li><a href="{% url 'detail_bulletin' bulletin.id %}">{{ "Encrypted" }}</a></li>
+      {% else %}
+        <li><a href="{% url 'detail_bulletin' bulletin.id %}">{{ bulletin.title }}</a></li>
+      {% endif %}
+	{%endfor%}</ul>
+<a style="text-decoration:none" href="/"><input type="button" value="Back" /></a>
+</div>
