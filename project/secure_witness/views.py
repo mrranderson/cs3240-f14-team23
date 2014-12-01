@@ -487,6 +487,7 @@ def accept_notification(request, notification_id):
     new_b.folder = b.folder
     new_b.docfile = b.docfile
     new_b.doc_key = encrypt_RSA(r_key, decrypt_RSA(a_key, b.doc_key))
+    new_b.currently_encrypted = b.currently_encrypted
     new_b.save()
     notification.delete()
     return HttpResponseRedirect('/inbox')
