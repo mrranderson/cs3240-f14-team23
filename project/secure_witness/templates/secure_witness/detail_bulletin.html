@@ -45,8 +45,13 @@ No parent folder.
 {%if bulletin.author == user%}
 <a style="text-decoration:none" href="{% url 'edit_bulletin' bulletin.id %}"><input type = "button" value= "Edit Bulletin" /></a>
 <a style="text-decoration:none" href="{% url 'delete_bulletin' bulletin.id %}"><input type = "button" value= "Delete Bulletin" /></a>
+{%if bulletin.docfile and bulletin.currently_encrypted%}
 <a style="text-decoration:none" href="{% url 'decrypt_document' bulletin.id %}"><input type = "button" value= "Decrypt Document" /></a>
+<br>
+{%elif bulletin.docfile and not bulletin.currently_encrypted%}
 <a style="text-decoration:none" href="{% url 'encrypt_document' bulletin.id %}"><input type = "button" value= "Encrypt Document" /></a>
+<br>
+{%endif%}
 {%endif%}
 <a style="text-decoration:none" href="{% url 'copy_bulletin' bulletin.id %}"><input type = "button" value= "Copy to private folder" /></a>
 <a style="text-decoration:none" href="/"><input type="button" value="Back" /></a>
