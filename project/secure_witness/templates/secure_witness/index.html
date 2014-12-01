@@ -45,8 +45,8 @@
 <h3>List of My Folders:</h3>
 {%if my_folders%}
     <ul>
-    {%for folder in my_folders|slice:":10" %}
-      <li><a href="{% url 'detail_folder' folder.id %}">{{folder.title}}</a></li>
+    {%for fol in my_folders|slice:":10" %}
+      <li><a href="{% url 'detail_folder' fol.id %}">{{fol.title}}</a></li>
     {%endfor%}
     </ul>
     {%if my_folders|length > 10 %}

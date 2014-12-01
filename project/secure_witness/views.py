@@ -144,7 +144,7 @@ def IndexView(request):
     your_bulletins = Bulletin.objects.filter(author=request.user)
 
     folder_list = Folder.objects.filter(is_global=True).filter(parent_folder__isnull=True)
-    my_folders = Folder.objects.filter(is_global=False).filter(parent_folder__isnull=True)
+    my_folders = Folder.objects.filter(is_global=False).filter(owner=request.user).filter(parent_folder__isnull=True)
 
     for b in your_bulletins:
         if request.user.profile.private_key != u'' and b.is_encrypted and not b.is_searchable:
@@ -650,7 +650,7 @@ def all_global_folders(request):
     return render(request, 'secure_witness/all_global_folders.html', {'folder_list':Folder.objects.filter(is_global=True).filter(parent_folder__isnull=True)})
     
 def all_private_folders(request):
-    return render(request, 'secure_witness/all_private_folders.html', {'folder_list':Folder.objects.filter(is_global=False).filter(parent_folder__isnull=True)})
+    return render(request, 'secure_witness/all_private_folders.html', {'folder_list':Folder.objects.filter(is_global=False).filter(owner=request.user).filter(parent_folder__isnull=True)})
 
 def all_my_bulletins(request):
     return render(request, 'secure_witness/all_my_bulletins.html', {'bulletin_list':Bulletin.objects.filter(author=request.user)})
