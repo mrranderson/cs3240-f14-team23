@@ -404,6 +404,11 @@ def edit_bulletin(request, bulletin_id):
     bulletin = get_object_or_404(Bulletin, pk=bulletin_id)
     if request.method == "POST":
         form = BulletinForm(request.POST)
+        if bulletin.is_encrypted:
+            form.title = decrypt_RSA(request.user.profile.private_key, str(form.title))
+            form.description = decrypt_RSA(request.user.profile.private_key, str(form.description))
+            form.location = decrypt_RSA(request.user.profile.private_key, str(form.location))
+            form.save()
         if form.is_valid():
             bulletin.title = form.cleaned_data['title']
             bulletin.location = form.cleaned_data['location']
@@ -413,7 +418,7 @@ def edit_bulletin(request, bulletin_id):
                 bulletin.title = encrypt_RSA(request.user.profile.public_key, str(bulletin.title))
                 bulletin.location = encrypt_RSA(request.user.profile.public_key, str(bulletin.location))
                 bulletin.description = encrypt_RSA(request.user.profile.public_key, str(bulletin.description))
-                
+            '''    
             if(form.cleaned_data['is_public']):
                 bulletin.is_public = True
             else:
@@ -432,6 +437,7 @@ def edit_bulletin(request, bulletin_id):
                 bulletin.is_searchable = True
             else:
                 bulletin.is_searchable = False
+            '''
             bulletin.save()
             
             #Send notification to users following the bulletin
