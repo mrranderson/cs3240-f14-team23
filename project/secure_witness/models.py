@@ -46,15 +46,9 @@ class Bulletin(models.Model):
 		return self.title
 
 class Document(models.Model):
-	title = models.CharField(max_length=200)
-	#Link to bulletin it's posted with
 	owner = models.ForeignKey(Bulletin)
-	#field to hold file
-	
-	class Meta:
-		permissions = (
-			("decrypt_document", "Can decrypt and use file"),
-		)
+	docfile = models.FileField(upload_to='documents', blank=True, null=True)
+	doc_key = models.CharField(max_length=200, default="")
 
 class Notification(models.Model):
     subject = models.CharField(max_length=200)

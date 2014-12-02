@@ -40,4 +40,5 @@ urlpatterns = patterns('',
         url(r'^copy_bulletin/(?P<bulletin_id>\d+)/', views.copy_bulletin, name='copy_bulletin'),
         url(r'^decrypt_document/(?P<bulletin_id>\d+)/', views.decrypt_document, name='decrypt_document'),
         url(r'^encrypt_document/(?P<bulletin_id>\d+)/', views.encrypt_document, name='encrypt_document'),
+        url(r'^add_document/(?P<bulletin_id>\d+)/', views.add_document, name='add_document'),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

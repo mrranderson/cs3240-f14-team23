@@ -1,0 +1,7 @@
+<form method="post" enctype="multipart/form-data" action=".">
+    {% csrf_token %}
+    {{ form.docfile.label }}
+	{{ form.docfile }}
+    <br><br><input type="submit" value="Submit" />
+	<a href='/'><input type="button" value="Back" /></a>
+</form>

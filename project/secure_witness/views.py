@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 from django.views import generic
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
-from forms import UserForm, BasicSearchForm, BulletinForm, FolderForm, UserEditForm, UserDeleteForm, PrivateFolderForm, CopyForm
+from forms import UserForm, BasicSearchForm, BulletinForm, FolderForm, UserEditForm, UserDeleteForm, PrivateFolderForm, CopyForm, BasicAddDoc
 from django.contrib.auth import login, authenticate, logout
 from secure_witness.models import Bulletin, Document, Notification, Follow, Folder
 from django.contrib.auth.models import User
@@ -293,11 +293,41 @@ def request_bulletin(request, bulletin_id):
     return HttpResponseRedirect('/')
 
 @login_required
+def add_document(request, bulletin_id):
+    bulletin = get_object_or_404(Bulletin, pk=bulletin_id)
+    if(bulletin.author == request.user):
+        if request.method == "POST":
+            form = BasicAddDoc(request.POST, request.FILES)
+            if form.is_valid():
+                b = Document()
+                b.owner = bulletin
+                aes_key = rand_key()
+                pub_key = request.user.profile.public_key
+                b.doc_key = encrypt_RSA(pub_key, aes_key)
+                
+                if request.FILES.get('docfile', None):
+                    b.docfile = request.FILES['docfile']
+                b.save()
+                if bulletin.is_encrypted and b.docfile:
+                    directory = os.path.dirname(__file__)
+                    directory = os.path.join(directory, "../project/")
+                    filename = os.path.join(directory, b.docfile.url[1:])
+                    aes_key = decrypt_RSA(request.user.profile.private_key, str(b.doc_key))
+                    encrypt_file(aes_key, filename, filename + '.enc') 
+                    os.remove(filename)
+                return HttpResponseRedirect('/search')
+        else:
+            form = BasicAddDoc()
+            return render(request, 'secure_witness/add_doc.html', {'form':form})
+    return HttpResponseRedirect('/')
+    
+@login_required
 def detail_bulletin(request, bulletin_id):
     bulletin = get_object_or_404(Bulletin, pk=bulletin_id)
     userprof = UserProfile.objects.filter(user=bulletin.author)[0]
     #return render(request, 'secure_witness/detail_bulletin.html', {'bulletin': bulletin, 'user':request.user})
     #Decrypt if user is author or has permissions to view
+    more = Document.objects.filter(owner=bulletin)
     if bulletin.is_encrypted and request.user == bulletin.author and request.user.profile.private_key != u'':
         temp_b = bulletin
         private_key_loc = request.user.profile.private_key
@@ -308,9 +338,9 @@ def detail_bulletin(request, bulletin_id):
         aes_key = decrypt_RSA(private_key_loc, str(bulletin.doc_key))
         temp_b.docfile = bulletin.docfile
 
-        return render(request, 'secure_witness/detail_bulletin.html', {'bulletin': temp_b, 'userprof':userprof})
+        return render(request, 'secure_witness/detail_bulletin.html', {'bulletin': temp_b, 'userprof':userprof, 'files':more})
 
-    return render(request, 'secure_witness/detail_bulletin.html', {'bulletin': bulletin, 'userprof':userprof})
+    return render(request, 'secure_witness/detail_bulletin.html', {'bulletin': bulletin, 'userprof':userprof, 'files':more})
 
 @login_required
 def detail_user(request, bulletin_id):

@@ -1,89 +1,108 @@
 {% block content %}
 <div style="position: absolute;top: 40%;left: 50%;margin-top: -100px;margin-left: -180px;width: 360px;height: 200px; padding-left: 25px; padding-right: 10px" >
-{% if bulletin.is_encrypted and bulletin.author != user %}
-<h1>This bulletin is encrypted</h1>
+	{% if bulletin.is_encrypted and bulletin.author != user %}
+		<h1>This bulletin is encrypted</h1>
 
-<h2>Author: Encrypted Data</h2>
+		<h2>Author: Encrypted Data</h2>
 
-<h3>Date created: Encrypted Data <br>
-Date modified: Encrypted Data <br>
-Location: Encrypted Data<br>
+		<h3>Date created: Encrypted Data <br>
+			Date modified: Encrypted Data <br>
+			Location: Encrypted Data<br>
 
-<p>Description: Encrypted Data</p>
-<a style="text-decoration:none" href="/"><input type="button" value="Back" /></a>
+			<p>Description: Encrypted Data</p>
+			<a style="text-decoration:none" href="/"><input type="button" value="Back" /></a>
 
-{%elif bulletin.is_public or bulletin.author == user%}
-<h1>{{ bulletin.title }}</h1>
+	{%elif bulletin.is_public or bulletin.author == user%}
+		<h1>{{ bulletin.title }}</h1>
 
-{%if userprof.is_public%}
-<h2>Author: <a href="{% url 'detail_user' bulletin.id %}">{{ bulletin.author }}</a></h2>
-{%else%}
-<h2>Author: {{ bulletin.author }}</h2>
-{%endif%}
+		{%if userprof.is_public%}
+			<h2>Author: <a href="{% url 'detail_user' bulletin.id %}">{{ bulletin.author }}</a></h2>
+		{%else%}
+			<h2>Author: {{ bulletin.author }}</h2>
+		{%endif%}
 
-<h3>Date created: {{bulletin.date_created}} <br>
-Date modified: {{bulletin.date_modified}} <br>
-Location: {{bulletin.location}}<br>
+		<h3>Date created: {{bulletin.date_created}} <br>
+			Date modified: {{bulletin.date_modified}} <br>
+			Location: {{bulletin.location}}<br>
+		
+		Files:
+		
+		{%if bulletin.docfile == None and files == None%}
+		You have no files associated with this bulletin<br>
+		{%else%}
+		<ul>
+		{%if bulletin.docfile and bulletin.currently_encrypted%}
+			<li><a href="{{ bulletin.docfile.url }}.enc">{{ bulletin.docfile.name }}</a></li>
+		{%elif bulletin.docfile and not bulletin.currently_encrypted%}
+			<li><a href="{{ bulletin.docfile.url }}.dec">{{ bulletin.docfile.name }}</a></li>
+		{%endif%}
+		
+		{% for file in files %}
+			{%if file and bulletin.currently_encrypted%}
+				<li><a href="{{ file.docfile.url }}.enc">{{ file.docfile.name }}</a></li>
+			{%elif file and not bulletin.currently_encrypted%}
+				<li><a href="{{ file.docfile.url }}.dec">{{ file.docfile.name }}</a></li>
+			{%endif%}
+		{%endfor%}
+		</ul>
+		{%endif%}
+		
+		<br>
+		{%if bulletin.folder %}
+			Parent Folder: <a href="{% url 'detail_folder' bulletin.folder.id %}">{{bulletin.folder.title}}</a>
+		{%else %}
+			No parent folder.
+		{%endif %}
+		<br>
 
-{%if bulletin.docfile and bulletin.currently_encrypted%}
-Files: <a href="{{ bulletin.docfile.url }}.enc">{{ bulletin.docfile.name }}</a>
-{%elif bulletin.docfile and not bulletin.currently_encrypted%}
-Files: <a href="{{ bulletin.docfile.url }}.dec">{{ bulletin.docfile.name }}</a>
-{%else%}
-No Files Attached to this bulletin
-{%endif%}
-<br>
-{%if bulletin.folder %}
-Parent Folder: <a href="{% url 'detail_folder' bulletin.folder.id %}">{{bulletin.folder.title}}</a>
-{%else %}
-No parent folder.
-{%endif %}
-<br>
+		<p>Description: <br>
+			{{bulletin.description}}</p>
+		{%if bulletin.author == user%}
+			<a style="text-decoration:none" href="{% url 'edit_bulletin' bulletin.id %}"><input type = "button" value= "Edit Bulletin" /></a>
+			<a style="text-decoration:none" href="{% url 'delete_bulletin' bulletin.id %}"><input type = "button" value= "Delete Bulletin" /></a>
+			<a style="text-decoration:none" href="{% url 'add_document' bulletin.id %}"><input type = "button" value= "Add New Document" /></a>
+			{%if bulletin.docfile and bulletin.currently_encrypted%}
+				<a style="text-decoration:none" href="{% url 'decrypt_document' bulletin.id %}"><input type = "button" value= "Decrypt Document" /></a>
+				<br>
+			{%elif bulletin.docfile and not bulletin.currently_encrypted%}
+				<a style="text-decoration:none" href="{% url 'encrypt_document' bulletin.id %}"><input type = "button" value= "Encrypt Document" /></a>
+				<br>
+			{%endif%}
+		{%endif%}
+		
+		<a style="text-decoration:none" href="{% url 'copy_bulletin' bulletin.id %}"><input type = "button" value= "Copy to private folder" /></a>
+		<a style="text-decoration:none" href="/"><input type="button" value="Back" /></a>
+		
+	{%elif bulletin.is_searchable%}
+		<h1>{{ bulletin.title }}</h1>
+		<h2>Author: Encrypted Data</h2>
 
-<p>Description: <br>
-{{bulletin.description}}</p>
-{%if bulletin.author == user%}
-<a style="text-decoration:none" href="{% url 'edit_bulletin' bulletin.id %}"><input type = "button" value= "Edit Bulletin" /></a>
-<a style="text-decoration:none" href="{% url 'delete_bulletin' bulletin.id %}"><input type = "button" value= "Delete Bulletin" /></a>
-{%if bulletin.docfile and bulletin.currently_encrypted%}
-<a style="text-decoration:none" href="{% url 'decrypt_document' bulletin.id %}"><input type = "button" value= "Decrypt Document" /></a>
-<br>
-{%elif bulletin.docfile and not bulletin.currently_encrypted%}
-<a style="text-decoration:none" href="{% url 'encrypt_document' bulletin.id %}"><input type = "button" value= "Encrypt Document" /></a>
-<br>
-{%endif%}
-{%endif%}
-<a style="text-decoration:none" href="{% url 'copy_bulletin' bulletin.id %}"><input type = "button" value= "Copy to private folder" /></a>
-<a style="text-decoration:none" href="/"><input type="button" value="Back" /></a>
-{%elif bulletin.is_searchable%}
-<h1>{{ bulletin.title }}</h1>
+		<h3>Date created: Encrypted Data <br>
+			Date modified: Encrypted Data <br>
+			Location: Encrypted Data<br>
 
-<h2>Author: Encrypted Data</h2>
+		<p>Description: <br>
+		   Encrypted Data</p>
+		<a style="text-decoration:none" href="/"><input type="button" value="Back" /></a>
+		
+	{%else%}
+		<h1>This bulletin is private</h1>
 
-<h3>Date created: Encrypted Data <br>
-Date modified: Encrypted Data <br>
-Location: Encrypted Data<br>
+		<h2>Author: Encrypted Data</h2>
 
-<p>Description: <br>
-Encrypted Data</p>
-<a style="text-decoration:none" href="/"><input type="button" value="Back" /></a>
-{%else%}
-<h1>This bulletin is private</h1>
-
-<h2>Author: Encrypted Data</h2>
-
-<h3>Date created: Encrypted Data <br>
-Date modified: Encrypted Data <br>
-Location: Encrypted Data<br>
-
-<p>Description: Encrypted Data</p>
-<a style="text-decoration:none" href="/"><input type="button" value="Back" /></a>
-{%endif%}
+		<h3>Date created: Encrypted Data <br>
+			Date modified: Encrypted Data <br>
+			Location: Encrypted Data<br>
+	
+		<p>Description: Encrypted Data</p>
+		<a style="text-decoration:none" href="/"><input type="button" value="Back" /></a>
+	{%endif%}
 </div>
 
-{%if bulletin.is_public%}
-	<a href="{% url 'follow_bulletin' bulletin.id %}">Follow This Bulletin</a>
-{%elif bulletin.is_searchable%}
-	<a href="{% url 'request_bulletin' bulletin.id %}">Request Access to This Bulletin</a>
-{%endif%}
+	{%if bulletin.is_public%}
+		<a href="{% url 'follow_bulletin' bulletin.id %}">Follow This Bulletin</a>
+	{%elif bulletin.is_searchable%}
+		<a href="{% url 'request_bulletin' bulletin.id %}">Request Access to This Bulletin</a>
+	{%endif%}
+	
 {% endblock %}

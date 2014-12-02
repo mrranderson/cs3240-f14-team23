@@ -21,6 +21,9 @@ class UserForm(forms.Form):
 
 class BasicSearchForm(forms.Form):
     keywords = forms.CharField(label="Keywords", max_length=200)
+    
+class BasicAddDoc(forms.Form):
+    docfile = forms.FileField(required=False, label='Filefield')
 
 class BulletinForm(forms.Form):
     title = forms.CharField(label='Title')
