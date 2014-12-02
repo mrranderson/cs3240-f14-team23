@@ -315,6 +315,8 @@ def add_document(request, bulletin_id):
                     aes_key = decrypt_RSA(request.user.profile.private_key, str(b.doc_key))
                     encrypt_file(aes_key, filename, filename + '.enc') 
                     os.remove(filename)
+                    if bulletin.currently_encrypted:
+                        decrypt_file(aes_key, filename+'.enc', filename+'.dec')
                 return HttpResponseRedirect('/search')
         else:
             form = BasicAddDoc()
