@@ -449,6 +449,7 @@ def edit_bulletin(request, bulletin_id):
 @login_required
 def decrypt_document(request, bulletin_id):
 	bulletin = get_object_or_404(Bulletin, pk=bulletin_id)
+	more = Document.objects.filter(owner=bulletin)
 	if bulletin.author == request.user:
 		private_key_loc = request.user.profile.private_key
 		aes_key = decrypt_RSA(private_key_loc, bulletin.doc_key)
@@ -459,11 +460,17 @@ def decrypt_document(request, bulletin_id):
 			decrypt_file(aes_key, filename+".enc", filename+".dec")
 			bulletin.currently_encrypted = False
 			bulletin.save()
+		for doc in more:
+			filename = os.path.join(directory, doc.docfile.url[1:])
+			aes_key = decrypt_RSA(private_key_loc, doc.doc_key)
+			if bulletin.is_encrypted and bulletin.docfile and os.path.isfile(filename+".enc"):
+				decrypt_file(aes_key, filename+".enc", filename+".dec")
 	return HttpResponseRedirect('/'+bulletin_id)
 
 @login_required
 def encrypt_document(request, bulletin_id):
   bulletin = get_object_or_404(Bulletin, pk=bulletin_id)
+  more = Document.objects.filter(owner=bulletin)
   if bulletin.author == request.user:
     #private_key_loc = request.user.profile.private_key
     #aes_key = decrypt_RSA(private_key_loc, str(bulletin.doc_key))
@@ -475,6 +482,9 @@ def encrypt_document(request, bulletin_id):
       bulletin.currently_encrypted = True
       bulletin.save()
       #encrypt_file(aes_key, filename, filename)
+    for doc in more:
+      if bulletin.is_encrypted and bulletin.docfile and os.path.isfile(filename+".dec"):
+			  os.remove(filename+".dec")
   return HttpResponseRedirect('/'+bulletin_id)
 
 @login_required
