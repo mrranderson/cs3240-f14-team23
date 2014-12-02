@@ -31,10 +31,12 @@
 		You have no files associated with this bulletin<br>
 		{%else%}
 		<ul>
-		{%if bulletin.docfile and bulletin.currently_encrypted%}
+		{%if bulletin.docfile and bulletin.is_encrypted and  bulletin.currently_encrypted%}
 			<li><a href="{{ bulletin.docfile.url }}.enc">{{ bulletin.docfile.name }}</a></li>
-		{%elif bulletin.docfile and not bulletin.currently_encrypted%}
+		{%elif bulletin.docfile and bulletin.is_encrypted and not bulletin.currently_encrypted%}
 			<li><a href="{{ bulletin.docfile.url }}.dec">{{ bulletin.docfile.name }}</a></li>
+		{%elif bulletin.docfile%}
+			<li><a href="{{ bulletin.docfile.url }}">{{ bulletin.docfile.name }}</a></li>
 		{%endif%}
 		
 		{% for file in files %}
@@ -42,6 +44,8 @@
 				<li><a href="{{ file.docfile.url }}.enc">{{ file.docfile.name }}</a></li>
 			{%elif file and not bulletin.currently_encrypted%}
 				<li><a href="{{ file.docfile.url }}.dec">{{ file.docfile.name }}</a></li>
+			{%elif bulletin.docfile%}
+				<li><a href="{{ bulletin.docfile.url }}">{{ bulletin.docfile.name }}</a></li>
 			{%endif%}
 		{%endfor%}
 		</ul>
@@ -61,10 +65,10 @@
 			<a style="text-decoration:none" href="{% url 'edit_bulletin' bulletin.id %}"><input type = "button" value= "Edit Bulletin" /></a>
 			<a style="text-decoration:none" href="{% url 'delete_bulletin' bulletin.id %}"><input type = "button" value= "Delete Bulletin" /></a>
 			<a style="text-decoration:none" href="{% url 'add_document' bulletin.id %}"><input type = "button" value= "Add New Document" /></a>
-			{%if bulletin.docfile and bulletin.currently_encrypted%}
+			{%if bulletin.docfile and bulletin.is_encrypted and bulletin.currently_encrypted%}
 				<a style="text-decoration:none" href="{% url 'decrypt_document' bulletin.id %}"><input type = "button" value= "Decrypt Document" /></a>
 				<br>
-			{%elif bulletin.docfile and not bulletin.currently_encrypted%}
+			{%elif bulletin.docfile and bulletin.is_encrypted and not bulletin.currently_encrypted%}
 				<a style="text-decoration:none" href="{% url 'encrypt_document' bulletin.id %}"><input type = "button" value= "Encrypt Document" /></a>
 				<br>
 			{%endif%}
