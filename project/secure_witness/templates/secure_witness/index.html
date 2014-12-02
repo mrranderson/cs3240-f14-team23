@@ -65,7 +65,7 @@
 {% if your_bulletins %}
 	<ul>
 	{%for bulletin in your_bulletins|slice:":10" %}
-		<li>Bulletin {{forloop.counter}}: <a href="{% url 'detail_bulletin' bulletin.id %}">{{ bulletin.title }}</a></li>
+		<li><a href="{% url 'detail_bulletin' bulletin.id %}">{{ bulletin.title }}</a></li>
 	{%endfor%}
 	</ul>
 	{%if your_bulletins|length > 10 %}
@@ -104,35 +104,21 @@
 	<ul>
 	{%for bulletin in pub_bulletins|slice:":10" %}
       {% if bulletin.is_encrypted and bulletin.author != user and not bulletin.is_searchable%}
-        <li>Bulletin {{forloop.counter}}: <a href="{% url 'detail_bulletin' bulletin.id %}">{{ "Encrypted" }}</a></li>
+        <li><a href="{% url 'detail_bulletin' bulletin.id %}">{{ "Encrypted" }}</a></li>
       {% else %}
-        <li>Bulletin {{forloop.counter}}: <a href="{% url 'detail_bulletin' bulletin.id %}">{{ bulletin.title }}</a></li>
+        <li><a href="{% url 'detail_bulletin' bulletin.id %}">{{ bulletin.title }}</a></li>
       {% endif %}
 	{%endfor%}
 	</ul>
+	{%if pub_bulletins|length > 10 %}
+	        <a href="{% url 'all_public_bulletins' %}">Show all</a><br>
+	{%endif %}
 {%else%}
-	<p>There are no public bulletins</p>
+	<p>There are no public bulletins.</p>
 {%endif%}
 </td></tr>
 
 <tr><td height="40"></td></tr>
-<tr><td valign="top">
-<h3>List of All Bulletins (debugging only)</h3>
-
-{% if bulletin_list %}
-    <ul>
-    {% for bulletin in bulletin_list %}
-      {% if bulletin.is_encrypted and bulletin.author != user and not bulletin.is_searchable %}
-        <li>Bulletin {{forloop.counter}}: <a href="{% url 'detail_bulletin' bulletin.id %}">{{ "Encrypted" }}</a></li>
-      {% else %}
-        <li>Bulletin {{forloop.counter}}: <a href="{% url 'detail_bulletin' bulletin.id %}">{{ bulletin.title }}</a></li>
-      {% endif %}
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No bulletins are available.</p>
-{% endif %}
-</td></tr>
 </tbody></table>
 </td></tr>
 </tbody></table>
