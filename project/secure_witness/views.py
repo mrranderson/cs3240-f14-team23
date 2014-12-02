@@ -409,6 +409,11 @@ def edit_bulletin(request, bulletin_id):
             bulletin.location = form.cleaned_data['location']
             bulletin.description = form.cleaned_data['description']
             bulletin.folder = form.cleaned_data['folder']
+            if bulletin.is_encrypted:
+                bulletin.title = encrypt_RSA(request.user.profile.public_key, str(bulletin.title))
+                bulletin.location = encrypt_RSA(request.user.profile.public_key, str(bulletin.location))
+                bulletin.description = encrypt_RSA(request.user.profile.public_key, str(bulletin.description))
+                
             if(form.cleaned_data['is_public']):
                 bulletin.is_public = True
             else:
@@ -663,7 +668,7 @@ def create_private_folder(request):
 def detail_folder(request, folder_id):
     f = get_object_or_404(Folder, pk=folder_id)
     bulletin_list = Bulletin.objects.filter(folder = f)
-    private_bulletins = Bulletin.objects.filter(private_folders=f)
+    private_bulletins = Bulletin.objects.filter(private_folder = f)
     subfolder_list = Folder.objects.filter(parent_folder = f)
     user = request.user
     return render(request, 'secure_witness/detail_folder.html', {'folder': f, 'subfolder_list': subfolder_list, 'bulletin_list': bulletin_list, 'user':user, 'private_bulletins': private_bulletins})
@@ -709,10 +714,9 @@ def copy_bulletin(request, bulletin_id):
     if request.method == "POST":
         form = CopyForm(request.POST)
         if form.is_valid():
-            bulletin.private_folders.add(form.cleaned_data['folder'])
+            bulletin.private_folder = form.cleaned_data['folder']
             bulletin.save()
         return HttpResponseRedirect('/')
     else:
         form = CopyForm()
-        form.fields['folder'].queryset=Folder.objects.filter(is_global=False).filter(owner=request.user)
     return render(request, 'secure_witness/copy_bulletin.html', {'form': form, 'bulletin': bulletin})
