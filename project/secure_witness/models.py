@@ -32,7 +32,8 @@ class Bulletin(models.Model):
 	is_public = models.BooleanField(default=False)
 	is_searchable = models.BooleanField(default=False)
 	folder = models.ForeignKey(Folder, null=True, related_name='bulletin_parent')
-	private_folder = models.ForeignKey(Folder, null=True, related_name='bulletin_private')
+	#private_folder = models.ForeignKey(Folder, null=True, related_name='bulletin_private')
+	private_folders = models.ManyToManyField(Folder, null=True, related_name='bulletin_private')
 	#file upload
 	docfile = models.FileField(upload_to='documents', blank=True, null=True)
 	doc_key = models.CharField(max_length=200, default="")
