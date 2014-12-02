@@ -40,12 +40,12 @@
 		{%endif%}
 		
 		{% for file in files %}
-			{%if file and bulletin.currently_encrypted%}
+			{%if file and bulletin.is_encrypted and bulletin.currently_encrypted%}
 				<li><a href="{{ file.docfile.url }}.enc">{{ file.docfile.name }}</a></li>
-			{%elif file and not bulletin.currently_encrypted%}
+			{%elif file and bulletin.is_encrypted and not bulletin.currently_encrypted%}
 				<li><a href="{{ file.docfile.url }}.dec">{{ file.docfile.name }}</a></li>
-			{%elif bulletin.docfile%}
-				<li><a href="{{ bulletin.docfile.url }}">{{ bulletin.docfile.name }}</a></li>
+			{%elif file%}
+				<li><a href="{{ file.docfile.url }}">{{ file.docfile.name }}</a></li>
 			{%endif%}
 		{%endfor%}
 		</ul>
