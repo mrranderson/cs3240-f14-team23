@@ -317,7 +317,7 @@ def add_document(request, bulletin_id):
                     os.remove(filename)
                     if not bulletin.currently_encrypted:
                         decrypt_file(aes_key, filename+'.enc', filename+'.dec')
-                return HttpResponseRedirect('/search')
+                return HttpResponseRedirect('/' + str(bulletin_id) + '/')
         else:
             form = BasicAddDoc()
             return render(request, 'secure_witness/add_doc.html', {'form':form})
@@ -543,6 +543,15 @@ def accept_notification(request, notification_id):
     new_b.currently_encrypted = b.currently_encrypted
     new_b.save()
     notification.delete()
+    
+    n = Notification()
+    n.subject = str(request.user) + ' has granted you permission to view their bulletin: ' + str(notification.bulletin.title)
+    n.sender = request.user
+    n.recipient = notification.sender
+    n.message = 'auto generated'
+    n.bulletin = notification.bulletin
+    n.save()
+    
     return HttpResponseRedirect('/inbox')
 
 @login_required

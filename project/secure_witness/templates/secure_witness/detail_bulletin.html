@@ -1,5 +1,5 @@
 {% block content %}
-<div style="position: absolute;top: 40%;left: 50%;margin-top: -100px;margin-left: -180px;width: 360px;height: 200px; padding-left: 25px; padding-right: 10px" >
+<div style="position: absolute;top: 40%;left: 50%;margin-top: -200px;margin-left: -180px;width: 360px;height: 200px; padding-left: 25px; padding-right: 10px" >
 	{% if bulletin.is_encrypted and bulletin.author != user %}
 		<h1>This bulletin is encrypted</h1>
 
@@ -21,9 +21,9 @@
 			<h2>Author: {{ bulletin.author }}</h2>
 		{%endif%}
 
-		<h3>Date created: {{bulletin.date_created}} <br>
+			Date created: {{bulletin.date_created}} <br>
 			Date modified: {{bulletin.date_modified}} <br>
-			Location: {{bulletin.location}}<br>
+			<p>Location: {{bulletin.location}}</p><br>
 		
 		Files:
 		
