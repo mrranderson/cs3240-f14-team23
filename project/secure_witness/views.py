@@ -581,6 +581,8 @@ def manage_user(request):
                         u.save()
                         us.save()
                         updated_password = 'Your password has been updated'
+                        auth_user = authenticate(username=request.user.username, password=form.cleaned_data['new_password'])
+                        login(request,auth_user)
                     else:
                         updated_password = 'Your new passwords did not match'
                 else:

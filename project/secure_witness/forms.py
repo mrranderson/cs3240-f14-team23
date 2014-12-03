@@ -47,9 +47,9 @@ class PrivateFolderForm(forms.Form):
     parent_folder = forms.ModelChoiceField(queryset=Folder.objects.filter(is_global=False), label='Parent Folder', empty_label='No parent folder.', required=False)
     
 class UserEditForm(forms.Form):
-    current_password = forms.CharField(required=False, label='Current Password')
-    new_password = forms.CharField(required=False, label='New Password')
-    confirm_new_password = forms.CharField(required=False, label='Confirm New Password')
+    current_password = forms.CharField(required=False, label='Current Password', widget=forms.PasswordInput())
+    new_password = forms.CharField(required=False, label='New Password', widget=forms.PasswordInput())
+    confirm_new_password = forms.CharField(required=False, label='Confirm New Password', widget=forms.PasswordInput())
     public_key_loc = forms.CharField(required=False, max_length=200, label='Change Public Key Location')
     private_key_loc = forms.CharField(required=False, max_length=200, label='Change Private Key Location')
     make_public = forms.BooleanField(required=False, label='Make Your account Public?')
