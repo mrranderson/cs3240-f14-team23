@@ -504,6 +504,8 @@ def encrypt_document(request, bulletin_id):
 def delete_bulletin(request, bulletin_id):
     bulletin = get_object_or_404(Bulletin, pk=bulletin_id)
     if bulletin.author == request.user:
+        for obj in Bulletin.objects.filter(original=bulletin.id):
+            obj.delete()
         bulletin.delete()
     return HttpResponseRedirect('/')
     
@@ -541,6 +543,7 @@ def accept_notification(request, notification_id):
     new_b.docfile = b.docfile
     new_b.doc_key = encrypt_RSA(r_key, decrypt_RSA(a_key, b.doc_key))
     new_b.currently_encrypted = b.currently_encrypted
+    new_b.original = b.id
     new_b.save()
     notification.delete()
     

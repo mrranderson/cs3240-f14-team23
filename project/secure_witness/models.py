@@ -39,6 +39,7 @@ class Bulletin(models.Model):
 	doc_key = models.CharField(max_length=200, default="")
 	currently_encrypted = models.BooleanField(default=False)
 	#readers = ArrayField(models.ForeignKey(Permission))
+    	original = models.IntegerField(default=0)
 
 	def filename(self):
 		return os.path.basename(self.docfile.name)
